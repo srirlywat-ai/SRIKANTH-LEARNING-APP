@@ -1,0 +1,13 @@
+{
+  "background_color": "#11e9e4",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Srikanth Learning App",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Srikanth App",
+  "start_url": "/",
+  "theme_color": "#2738d7",
+  "id": "app.srikanth.learningapp",
+  "description": "Study and preparation app for railway ldce examinations"
+}
