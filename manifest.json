@@ -1,11 +1,13 @@
 {
-  "background_color": "#ffffff",
+  "background_color": "#11e9e4",
   "dir": "ltr",
   "display": "standalone",
-  "name": "srirlywat-ai.github",
+  "name": "Srikanth Learning App",
   "orientation": "any",
-  "scope": "/SRIKANTH-LEARNING-APP/",
-  "short_name": "srirlywat-ai.github",
-  "start_url": "/SRIKANTH-LEARNING-APP/",
-  "theme_color": "#ffffff"
+  "scope": "/",
+  "short_name": "Srikanth App",
+  "start_url": "/",
+  "theme_color": "#2738d7",
+  "id": "app.srikanth.learningapp",
+  "description": "Study and preparation app for railway ldce examinations"
 }
