@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SRIKANTH LEARNING APP</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+
+<style>
+  :root { 
+    --primary: #2563eb; 
+    --primary-light: #3b82f6; 
+    --primary-dark: #1e40af; 
+    --secondary: #64748b; 
+    --secondary-light: #94a3b8; 
+    --success: #22c55e;
+    --danger: #ef4444;
+    --bg: #f1f5f9; 
+    --card: #ffffff; 
+    --text: #0f172a; 
+    --border: #cbd5e1;
+  }
+  
+  [data-theme="dark"] {
+    --primary: #3b82f6;
+    --primary-light: #60a5fa;
+    --primary-dark: #1d4ed8;
+    --secondary: #94a3b8;
+    --secondary-light: #cbd5e1;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f8fafc;
+    --border: #334155;
+  }
+
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 40px; transition: background 0.3s, color 0.3s; }
+  
+  h1, h2, h3, h4, h5, h6 { text-transform: uppercase; }
+
+  /* Navigation */
+  .navbar { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 4px; align-items: center; justify-content: space-between; }
+  .nav-links { display: flex; gap: 0.75rem; overflow-x: auto; }
+  
+  .nav-btn { 
+    padding: 0.6rem 1.2rem; border-radius: 0.75rem; border: none; background: transparent; 
+    color: var(--secondary); font-weight: 600; cursor: pointer; font-size: 0.95rem; white-space: nowrap; transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+  .nav-btn:hover:not(.active) { background: var(--border); color: var(--primary-dark); }
+  .nav-btn.active { background: linear-gradient(135deg, var(--primary-light), var(--primary)); color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+
+  .btn { padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; background: var(--primary); color: white; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s; }
+  .btn:hover { background: var(--primary-dark); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #c52929; }
+  .btn-secondary { background: var(--secondary); color: white; }
+  .btn-secondary:hover { background: var(--secondary-light); }
+  .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; border-radius: 0.5rem; }
+
+  .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .card { background: var(--card); border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem; border: 1px solid var(--border); }
+  
+  input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 0.5rem; margin-bottom: 1rem; }
+  .input-group { display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; }
+  .input-group select { flex-grow: 1; margin-bottom: 0; }
+  input[type="checkbox"] { width: auto; margin-bottom: 0; transform: scale(1.2); cursor: pointer; }
+  
+  .quiz-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .quiz-controls select { width: auto; flex-grow: 1; min-width: 150px; }
+  
+  #viewContainer, #quizContainer, #searchContainer, #bookmarkContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: stretch; }
+  @media (max-width: 768px) { #viewContainer, #quizContainer, #searchContainer, #bookmarkContainer { grid-template-columns: 1fr; } }
+  
+  .mcq-card { border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem; background: var(--card); display: flex; flex-direction: column; position: relative; }
+  .bookmark-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--secondary); }
+  .bookmark-btn.bookmarked { color: #f59e0b; }
+
+  .mcq-opt { padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.3rem; margin-bottom: 0.5rem; cursor: pointer; transition: background 0.1s; }
+  .mcq-opt:hover { background: rgba(0,0,0,0.02); }
+  .mcq-opt.correct { background: #dcfce7 !important; border-color: var(--success) !important; color: #166534; font-weight: bold;}
+  .mcq-opt.wrong { background: #fee2e2 !important; border-color: var(--danger) !important; color: #991b1b; text-decoration: line-through;}
+  .mcq-opt.selected { background: #e0e7ff; border-color: var(--primary); } 
+  .note-box { margin-top: auto; padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b; font-size: 0.9rem; color: #d97706; border-radius: 0 0.375rem 0.375rem 0; }
+
+  .carousel-container { position: relative; height: 80vh; min-height: 500px; background: #111; border-radius: 0.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .carousel-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+  #carouselPlaceholder { position: absolute; text-align: center; width: 100%; color: #aaa; padding: 1rem; }
+  .carousel-ctrl { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; padding: 1.2rem; cursor: pointer; font-size: 1.5rem; border-radius: 50%; z-index: 50; transition: background 0.2s; }
+  .carousel-ctrl:hover { background: rgba(0,0,0,0.9); }
+  .c-prev { left: 20px; } .c-next { right: 20px; }
+  
+  .note-display-home { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 0.5rem; margin-top: 10px; font-size: 1rem; white-space: pre-wrap; font-weight: 500; min-height: 120px;}
+  .note-point { display: block; margin-bottom: 0.5rem; }
+  
+  .dynamic-banner { background: var(--card); border-radius: 0.75rem; padding: 1rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1rem; border-left: 4px solid var(--primary); font-size: 1rem; display: flex; align-items: center; min-height: 80px; border: 1px solid var(--border);}
+  .dynamic-banner.notes-banner { border-left-color: var(--success); }
+  
+  .pdf-viewer-container { background: #525659; padding: 20px; border-radius: 8px; height: 600px; overflow-y: auto; text-align: center; }
+  .pdf-page-canvas { box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 15px; max-width: 100%; }
+  
+  .exam-history-item { background: var(--bg); border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+
+  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #334155; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
+  #toast.show { opacity: 1; }
+
+  .timer-badge { font-size: 1.2rem; font-weight: bold; background: var(--primary); color: white; padding: 0.4rem 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1rem; }
+
+  @media (max-width: 768px) {
+    .quiz-controls { flex-direction: column; align-items: stretch; }
+    .input-group { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; margin-bottom: 0.5rem; }
+    .btn-sm { width: auto; }
+    .carousel-container { height: 60vh; }
+    .exam-history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="switchTab('home')">Home</button>
+      <button class="nav-btn" onclick="switchTab('images')">Images</button>
+      <button class="nav-btn" onclick="switchTab('search')">Search</button>
+      <button class="nav-btn" onclick="switchTab('bookmarks')">Bookmarks</button>
+      <button class="nav-btn" onclick="switchTab('view')">VIEW MCQ</button>
+      <button class="nav-btn" onclick="switchTab('quiz')">Quiz</button>
+      <button class="nav-btn" onclick="switchTab('notes')">Notes</button>
+      <button class="nav-btn" onclick="switchTab('papers')">Papers</button>
+      <button class="nav-btn" onclick="switchTab('backup')">Data Management</button>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark</button>
+  </div>
+</nav>
+
+<div id="toast">Success</div>
+
+<div class="container">
+
+  <div id="home" class="section active">
+    <div class="card" style="background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border);">
+        <h3 style="color:var(--primary-dark); margin-top: 0; margin-bottom: 5px;">Quick Review Note</h3>
+        <div id="randomNoteContent" class="note-display-home">Loading clean points...</div>
+    </div>
+
+    <div class="card" style="border: 1px dashed var(--border); margin-top: -10px; margin-bottom: 15px;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: var(--secondary);">+ Add Quick Point Note</h4>
+        <div class="input-group" style="margin-bottom: 0;">
+            <input type="text" id="quickNoteInput" placeholder="Type a clean fact to remember..." style="margin-bottom: 0;">
+            <button class="btn" onclick="saveQuickNote()" style="white-space: nowrap;">Save Point</button>
+        </div>
+    </div>
+
+    <div class="dynamic-banner" id="mcqFactBanner">
+      <span id="mcqFactText">Loading quick facts...</span>
+    </div>
+
+    <div class="dynamic-banner notes-banner" id="noteReviewBanner">
+      <span id="noteReviewText">Loading note snippets...</span>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top: 0;">App Statistics</h3>
+        <div style="font-size:1.1rem; color:var(--text)">
+            <strong>Total Topics:</strong> <span id="statTopics" style="color:var(--primary)">0</span> <br><br>
+            <strong>Total Questions:</strong> <span id="statQuestions" style="color:var(--primary)">0</span>
+        </div>
+    </div>
+  </div>
+
+  <div id="images" class="section">
+    <div class="card">
+        <h3>Cheat Sheet Images</h3>
+        <p style="font-size:0.9rem; color:var(--secondary); margin-bottom: 1rem;">Upload full-size images for quick visual review. Images save permanently.</p>
+        <input type="file" id="cheatInput" accept="image/*" multiple style="margin-bottom:1rem; width: 100%;" onchange="handleCheatInput(event)">
+        
+        <div class="carousel-container">
+          <img id="carouselImg" src="" alt="Cheat Sheet Image" class="carousel-img" style="display:none">
+          <div id="carouselPlaceholder">No images uploaded.</div> 
+          <button class="carousel-ctrl c-prev" onclick="moveCarousel(-1)">&lt;</button>
+          <button class="carousel-ctrl c-next" onclick="moveCarousel(1)">&gt;</button>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <p id="carouselCounter" style="margin:0; color:var(--secondary); font-weight:bold; font-size:1.1rem;">0 / 0</p>
+          <button class="btn btn-danger btn-sm" id="deleteCurrentImgBtn" onclick="deleteCurrentCarouselImage()">Delete Current Image</button>
+        </div>
+    </div>
+  </div>
+
+  <div id="search" class="section">
+    <div class="card">
+      <h3>Global MCQ Search</h3>
+      <div class="input-group">
+        <input type="text" id="globalSearchInput" placeholder="Type keyword (e.g., HOER, Penalty, Suspension)..." style="margin-bottom:0;" oninput="performGlobalSearch()">
+        <button class="btn" onclick="performGlobalSearch()">Search</button>
+      </div>
+    </div>
+    <div id="searchContainer"></div>
+  </div>
+
+  <div id="bookmarks" class="section">
+    <div class="card">
+      <h3>Bookmarked Questions</h3>
+      <p style="font-size:0.9rem; color:var(--secondary);">Review questions you flagged for extra study.</p>
+    </div>
+    <div id="bookmarkContainer"></div>
+  </div>
+
+  <div id="view" class="section">
+    <div class="card">
+      <h3>View Questions (Read Only)</h3>
+      <select id="viewTopicSelect" onchange="renderViewMode()"></select>
+    </div>
+    <div id="viewContainer"></div>
+  </div>
+
+  <div id="quiz" class="section">
+    <div class="card">
+      <h3>Quiz Mode & Exam History</h3>
+      <div class="quiz-controls">
+        <select id="quizTypeSelect" onchange="toggleQuizSettings()">
+            <option value="practice">Practice Mode (Instant Feedback)</option>
+            <option value="apo">APO Exam Mode (110 Qs, Submit at End)</option>
+        </select>
+        <select id="quizTopicSelect" onchange="resetQuizMode()"></select>
+        <select id="quizSizeSelect">
+            <option value="10">10 Questions</option>
+            <option value="20">20 Questions</option>
+            <option value="50">50 Questions</option>
+            <option value="all">All Questions</option>
+        </select>
+        <select id="quizTimerSelect">
+            <option value="none">No Timer</option>
+            <option value="300">5 Minutes</option>
+            <option value="600">10 Minutes</option>
+            <option value="1800">30 Minutes</option>
+            <option value="6600">110 Minutes (Exam Standard)</option>
+        </select>
+        <button class="btn" onclick="renderQuizMode()">Start Quiz</button>
+        <button class="btn btn-secondary" onclick="toggleExamHistory()">Toggle Exam History</button>
+      </div>
+    </div>
+    
+    <div id="examHistoryContainer" class="card" style="display:none; background:var(--bg);">
+        <h4 style="margin-top:0;">Past APO Exams</h4>
+        <div id="examHistoryList"></div>
+    </div>
+
+    <div id="examResultContainer" class="card" style="display:none; text-align:center; background:rgba(34, 197, 94, 0.1); border:2px solid var(--success);"></div>
+    
+    <div id="quizTimerDisplay" style="text-align:center; display:none;"><span class="timer-badge" id="timerClock">⏱️ 00:00</span></div>
+    
+    <div id="quizContainer"></div>
+    
+    <div style="text-align:center; margin-top:20px;">
+        <button id="submitExamBtn" class="btn" style="display:none; padding:1rem 3rem; font-size:1.2rem; background:var(--success);" onclick="submitExam()">Submit Exam</button>
+    </div>
+  </div>
+  
+  <div id="notes" class="section">
+    <div class="card">
+      <h3>Saved Notes & PDFs Viewer</h3>
+      <label>Saved Notes (View Only)</label>
+      <select id="savedNotesSelect" onchange="loadNoteView()"></select>
+      <div id="noteDisplayArea" style="margin-top:15px"></div>
+    </div>
+  </div>
+
+  <div id="papers" class="section">
+    <div class="card">
+      <h3>Previous Papers Viewer</h3>
+      <div id="paperList" style="margin-top:15px"></div>
+    </div>
+    
+    <div id="paperViewer" class="card" style="display:none;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <h4 id="paperTitleViewer" style="margin:0">Paper View</h4>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('paperViewer').style.display='none'">Close</button>
+      </div>
+      <div id="pdfRenderer" class="pdf-viewer-container"></div>
+    </div>
+  </div>
+
+  <!-- DATA MANAGEMENT HUB -->
+  <div id="backup" class="section">
+    <div class="card">
+      <h2>Data Management Hub</h2>
+      <p style="color:var(--secondary)">Backup your data or restore from your large JSON dataset files. All creation, addition, and deletion tools are consolidated here.</p>
+      
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin: 1rem 0;">
+        <button class="btn" onclick="backupAllData()">Download Backup File</button>
+        <label class="btn btn-secondary" style="margin:0;">
+          Restore Backup / Import JSON
+          <input type="file" id="restoreInput" accept="application/json,.json" style="display:none" onchange="restoreAllData(event)">
+        </label>
+      </div>
+      <p id="backupStatus" style="font-size:0.9rem; color:var(--secondary); margin-bottom:1rem;">Ready for import.</p>
+      
+      <!-- ADD MCQS SECTION -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">Add & Append MCQs</h3>
+      <label>Select Existing Topic or Type New Topic</label>
+      <div class="input-group" style="margin-bottom:1rem;">
+        <select id="existingTopicSelect" onchange="document.getElementById('addTopic').value = this.value;">
+          <option value="">-- Choose Existing Topic (Optional) --</option>
+        </select>
+      </div>
+      <input id="addTopic" placeholder="Or Type New Topic Name">
+
+      <label>Extract MCQs from PDF / Word / Image</label>
+      <input type="file" id="mcqExtractFile" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1rem;">
+        <button class="btn btn-secondary" onclick="extractMCQsFromFile()">Extract to Text Box</button>
+        <button class="btn btn-secondary" onclick="clearExtractedMCQText()">Clear Text</button>
+        <button class="btn btn-secondary" onclick="formatPastedMCQs()">Format / Detect MCQs</button>
+      </div>
+
+      <div style="background: var(--bg); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px dashed var(--border);">
+          <label style="display: flex; align-items: center; gap: 10px; margin-bottom:0;">
+              <input type="checkbox" id="isQuestionPaper" onchange="document.getElementById('paperNameContainer').style.display = this.checked ? 'block' : 'none'"> 
+              <strong>Extracted from a Question Paper</strong>
+          </label>
+          <div id="paperNameContainer" style="display:none; margin-top: 10px;">
+              <input type="text" id="qpName" placeholder="Paper Name / Year (e.g., APO LDCE 30% 2021)">
+              <p style="font-size:0.8rem; color:var(--secondary); margin:0;">If checked, duplicates won't be deleted. Instead, existing MCQs will be tagged with this paper name.</p>
+          </div>
+      </div>
+
+      <label>Paste or Review Extracted Content</label>
+      <textarea id="addText" rows="10" placeholder="1. What is meant by Intensive employment?&#10;&#10;A) Excluded&#10;B) Continuous&#10;C) Essentially Intermittent&#10;D) Intensive&#10;Ans: D&#10;Note: Explanation..."></textarea>
+      <button class="btn" onclick="parseAndSaveMCQs()">Save & Append MCQs</button>
+
+      <!-- ADD NOTES SECTION -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">Add Notes & PDFs</h3>
+      <label>Topic Name</label>
+      <input id="noteTopic" placeholder="Topic">
+      <label>Text Notes (Saved as clean bullet points)</label>
+      <textarea id="noteText" rows="4" placeholder="Type points here. Headings and bold tags will be stripped automatically..."></textarea>
+      <label>Upload PDF Note</label>
+      <input type="file" id="notePdf" accept="application/pdf">
+      <button class="btn" onclick="saveNote()">Save Note</button>
+
+      <!-- ADD PREVIOUS PAPERS SECTION -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">Upload Previous Paper PDF</h3>
+      <label>Paper Name/Year</label>
+      <input id="paperName" placeholder="Paper Name">
+      <label>Upload PDF</label>
+      <input type="file" id="paperPdf" accept="application/pdf">
+      <button class="btn" onclick="savePaper()">Upload Paper</button>
+
+      <!-- DELETION CENTER SECTION -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--danger); margin-bottom: 0.5rem;">Data Deletion Center</h3>
+      <p style="color:var(--secondary); font-size:0.9rem;">**WARNING:** Deletion is permanent and cannot be undone.</p>
+      
+      <hr style="border-color: var(--border);">
+      <h4 style="margin-bottom: 0.5rem;">Delete Complete MCQ Topic</h4>
+      <div class="input-group">
+        <select id="deleteMcqSelect" onchange="populateSpecificMcqDropdown()"></select>
+        <button class="btn btn-danger" onclick="deleteCurrentTopic()">Delete Topic</button>
+      </div>
+
+      <h4 style="margin-bottom: 0.5rem; margin-top:1rem;">Delete Specific Incorrect/Unwanted Question</h4>
+      <div class="input-group">
+        <select id="deleteSpecificMcqSelect"></select>
+        <button class="btn btn-danger" onclick="deleteSpecificQuestion()">Delete Question</button>
+      </div>
+      
+      <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--border);">
+      <h4 style="margin-bottom: 0.5rem;">Delete Text/PDF Note</h4>
+      <div class="input-group">
+        <select id="deleteNoteSelect"></select>
+        <button class="btn btn-danger" onclick="deleteCurrentNote()">Delete Note</button>
+      </div>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--border);">
+      <h4 style="margin-bottom: 0.5rem;">Delete Carousel Images</h4>
+      <p style="font-size: 0.8rem; color: var(--secondary); margin-top:0;">Wipe all full-size cheat sheet images.</p>
+      <button class="btn btn-danger" onclick="clearCarouselImages()">Delete All Images</button>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--border);">
+      <h4 style="margin-bottom: 0.5rem;">Delete Previous Paper</h4>
+      <div id="deletePaperList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// --- DEFAULT SEED DATA FOR AUTO-RESTORATION ON BUILD ---
+const DEFAULT_SEED_DATA = {
+  "app": "Srikanth Learning App",
+  "version": 1,
+  "localStorage": {
+    "mcq_data": JSON.stringify({
+      "HOER": [
+        {"q":"What is meant by “Intensive” employment of a railway servant?","o":["Excluded","Continuous","Essentially Intermittent","Intensive"],"a":3,"n":"Intensive work involves continuous concentration or hard manual labour with little or no relaxation."},
+        {"q":"Staff of railway schools imparting education are classified as:","o":["Continuous","Excluded","Essentially Intermittent","Intensive"],"a":1,"n":"Educational staff are excluded from HOER provisions."}
+      ]
+    }),
+    "txt_notes": JSON.stringify({
+      "Railway Rules Quick Points": "• LND Salary & Refund: Paid at half pay like LHAP; if employee resigns without earning back LHAP credit, leave salary is refundable.\n• Casual Leave (CL) & Special Casual Leave (SCL): Handled under special service rules."
+    })
+  }
+};
+
+// --- DB & STORAGE (Data Persistence) ---
+const dbName = "McqAppDB";
+let db;
+const request = indexedDB.open(dbName, 1);
+request.onupgradeneeded = e => {
+  db = e.target.result;
+  if (!db.objectStoreNames.contains("pdfs")) db.createObjectStore("pdfs", { keyPath: "id" });
+};
+request.onsuccess = e => { 
+  db = e.target.result; 
+  initAutoRestore();
+};
+
+function initAutoRestore() {
+    if (!localStorage.getItem("mcq_data") || Object.keys(getMCQs()).length === 0) {
+        localStorage.setItem("mcq_data", DEFAULT_SEED_DATA.localStorage.mcq_data);
+        localStorage.setItem("txt_notes", DEFAULT_SEED_DATA.localStorage.txt_notes);
+        localStorage.setItem("exam_history", "[]");
+        localStorage.setItem("bookmarks", "[]");
+    }
+    
+    loadSavedNotesList(); 
+    loadPaperList(); 
+    updateStats(); 
+    startHomeNoteRotation(); 
+    updateSelects(); 
+    updateDeleteSelects(); 
+    loadSavedCarouselImages(); 
+    triggerInitialBanners(); 
+    renderExamHistory(); 
+    initTheme();
+    renderBookmarks();
+}
+
+function saveFile(id, blob, meta) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("pdfs", "readwrite");
+    const store = transaction.objectStore("pdfs");
+    const request = store.put({ id, blob, meta });
+    request.onsuccess = () => resolve(); request.onerror = (e) => reject(e);
+    transaction.oncomplete = () => showToast("Saved");
+  });
+}
+function getFile(id, cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").get(id).onsuccess = e => cb(e.target.result); }
+function getKeys(cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").getAllKeys().onsuccess = e => cb(e.target.result); }
+function getAllFiles() {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction("pdfs", "readonly").objectStore("pdfs").getAll();
+    request.onsuccess = e => resolve(e.target.result); request.onerror = e => reject(e);
+  });
+}
+function clearAllFiles() {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction("pdfs", "readwrite").objectStore("pdfs").clear();
+    request.onsuccess = () => resolve(); request.onerror = e => reject(e);
+  });
+}
+function getAllFilesByPrefix(prefix, cb) {
+  const transaction = db.transaction("pdfs", "readonly");
+  const range = IDBKeyRange.bound(prefix, prefix + '\uffff', false, true);
+  transaction.objectStore("pdfs").getAll(range).onsuccess = (e) => cb(e.target.result);
+}
+function deleteFile(id) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("pdfs", "readwrite");
+        const request = transaction.objectStore("pdfs").delete(id);
+        request.onsuccess = () => resolve(); request.onerror = (e) => reject(e);
+    });
+}
+
+// --- THEME MANAGEMENT (Dark Mode) ---
+function initTheme() {
+    const isDark = localStorage.getItem("dark_mode") === "true";
+    if (isDark) {
+        document.documentElement.setAttribute("data-theme", "dark");
+        document.getElementById("darkModeBtn").textContent = "☀️ Light";
+    }
+}
+function toggleDarkMode() {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    if (isDark) {
+        document.documentElement.removeAttribute("data-theme");
+        localStorage.setItem("dark_mode", "false");
+        document.getElementById("darkModeBtn").textContent = "🌙 Dark";
+    } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("dark_mode", "true");
+        document.getElementById("darkModeBtn").textContent = "☀️ Light";
+    }
+    showToast("Theme Updated");
+}
+
+// --- NAVIGATION & UTILS ---
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const targetButton = document.querySelector(`.nav-inner button[onclick="switchTab('${id}')"]`);
+  if(targetButton) targetButton.classList.add('active');
+  if(id === 'backup') updateDeleteSelects(); 
+  if(id === 'bookmarks') renderBookmarks();
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
+}
+function setBackupStatus(msg) { const el = document.getElementById('backupStatus'); if (el) el.textContent = msg; }
+function blobToDataUrl(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); }); }
+function dataUrlToBlob(dataUrl) {
+  const parts = dataUrl.split(','); const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'application/octet-stream';
+  const binary = atob(parts[1]); const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+function getBackupFileName() { return `srikanth-learning-app-backup-${new Date().toISOString().slice(0, 10)}.json`; }
+async function createBackupData() {
+  const files = await getAllFiles();
+  const backup = { 
+    app: "Srikanth Learning App", 
+    version: 1, 
+    exportedAt: new Date().toISOString(), 
+    localStorage: { 
+      mcq_data: localStorage.getItem("mcq_data") || "{}", 
+      txt_notes: localStorage.getItem("txt_notes") || "{}" , 
+      exam_history: localStorage.getItem("exam_history") || "[]",
+      bookmarks: localStorage.getItem("bookmarks") || "[]"
+    }, 
+    indexedDbFiles: [] 
+  };
+  for (const item of files) backup.indexedDbFiles.push({ id: item.id, meta: item.meta || {}, dataUrl: await blobToDataUrl(item.blob) });
+  return { backup, filesCount: files.length };
+}
+function downloadBackupJson(jsonText) {
+  const backupBlob = new Blob([jsonText], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(backupBlob); const a = document.createElement("a");
+  a.href = url; a.download = getBackupFileName(); a.style.display = "none";
+  document.body.appendChild(a); a.click(); setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1000);
+}
+async function backupAllData() {
+  try {
+    setBackupStatus("Preparing backup..."); const result = await createBackupData();
+    downloadBackupJson(JSON.stringify(result.backup, null, 2)); setBackupStatus("Backup downloaded."); showToast("Backup Started");
+  } catch (err) { setBackupStatus("Backup failed."); showToast("Error"); }
+}
+
+// --- ROBUST FILE RESTORATION FOR LARGE JSON DATASETS ---
+async function restoreAllData(event) {
+  const file = event.target.files[0]; if (!file) return;
+  setBackupStatus("Reading dataset file (11k+ records)...");
+  
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+        const fileText = e.target.result;
+        let backup;
+        try {
+            backup = JSON.parse(fileText);
+        } catch(parseErr) {
+            throw new Error("Invalid JSON structure. Please verify file format.");
+        }
+
+        setBackupStatus("Parsing data sets...");
+        
+        let mcqObj = {};
+        let notesObj = {};
+        let examHistObj = "[]";
+        let bookmarksObj = "[]";
+
+        if (backup.localStorage) {
+            if (backup.localStorage.mcq_data) {
+                mcqObj = typeof backup.localStorage.mcq_data === 'string' ? JSON.parse(backup.localStorage.mcq_data) : backup.localStorage.mcq_data;
+            }
+            if (backup.localStorage.txt_notes) {
+                notesObj = typeof backup.localStorage.txt_notes === 'string' ? JSON.parse(backup.localStorage.txt_notes) : backup.localStorage.txt_notes;
+            }
+            if (backup.localStorage.exam_history) {
+                examHistObj = typeof backup.localStorage.exam_history === 'string' ? backup.localStorage.exam_history : JSON.stringify(backup.localStorage.exam_history);
+            }
+            if (backup.localStorage.bookmarks) {
+                bookmarksObj = typeof backup.localStorage.bookmarks === 'string' ? backup.localStorage.bookmarks : JSON.stringify(backup.localStorage.bookmarks);
+            }
+        } else {
+            // Raw topic-mapped MCQ JSON files
+            mcqObj = backup;
+        }
+
+        localStorage.setItem("mcq_data", JSON.stringify(mcqObj));
+        localStorage.setItem("txt_notes", JSON.stringify(notesObj));
+        localStorage.setItem("exam_history", examHistObj);
+        localStorage.setItem("bookmarks", bookmarksObj);
+        
+        await clearAllFiles();
+        if (backup.indexedDbFiles && Array.isArray(backup.indexedDbFiles)) {
+            for (const item of backup.indexedDbFiles) { 
+                if (item && item.id && item.dataUrl) {
+                    await saveFile(item.id, dataUrlToBlob(item.dataUrl), item.meta || {}); 
+                }
+            }
+        }
+        
+        setBackupStatus("Restored successfully! Reloading app...");
+        showToast("All Data Imported Successfully!");
+        setTimeout(() => location.reload(), 1200);
+    } catch (err) { 
+        console.error(err);
+        setBackupStatus("Restore failed: " + err.message); 
+        showToast("Import Error"); 
+    }
+  };
+  reader.onerror = function() {
+    setBackupStatus("Error reading file stream.");
+    showToast("Read Error");
+  };
+  reader.readAsText(file);
+}
+
+function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+
+// --- STRICT CLEAN NOTES TEXT FORMATTING (OMITS HEADINGS/MARKDOWN) ---
+function cleanAndFormatNoteText(rawText) {
+    if (!rawText) return "";
+    const lines = rawText.split('\n');
+    const formattedLines = lines.map(line => {
+        let trimmed = line.trim();
+        trimmed = trimmed.replace(/^(\#{1,6}\s*|\d+[\.\-\)]\s*|[\-\*\•]\s*|\*\*|\*)/g, '');
+        trimmed = trimmed.replace(/\*\*/g, '').replace(/\*/g, '');
+        trimmed = trimmed.trim();
+        if (trimmed.length === 0) return "";
+        return `• ${trimmed}`;
+    }).filter(Boolean);
+    return formattedLines.join('\n');
+}
+
+// --- BOOKMARKS LOGIC ---
+function getBookmarks() { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); }
+function toggleBookmark(topic, qIndex) {
+    let bookmarks = getBookmarks();
+    const index = bookmarks.findIndex(b => b.topic === topic && b.qIndex === qIndex);
+    if (index > -1) {
+        bookmarks.splice(index, 1);
+        showToast("Bookmark Removed");
+    } else {
+        bookmarks.push({ topic, qIndex });
+        showToast("Question Bookmarked!");
+    }
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+    renderBookmarks();
+}
+function renderBookmarks() {
+    const container = document.getElementById('bookmarkContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    const bookmarks = getBookmarks();
+    const allData = getMCQs();
+
+    if (bookmarks.length === 0) {
+        container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No bookmarks added yet. Click the star icon on any question to save it here.</p>`;
+        return;
+    }
+
+    bookmarks.forEach(b => {
+        const topicQs = allData[b.topic];
+        if (!topicQs || !topicQs[b.qIndex]) return;
+        const item = topicQs[b.qIndex];
+        
+        const el = document.createElement('div'); el.className = 'mcq-card';
+        let optsHtml = ''; 
+        item.o.forEach((opt, i) => { 
+            const isAns = (i === item.a); 
+            optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
+        });
+        
+        el.innerHTML = `
+            <button class="bookmark-btn bookmarked" onclick="toggleBookmark('${b.topic}', ${b.qIndex})">★</button>
+            <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:5px;">Topic: ${b.topic}</div>
+            <div class="mcq-q"><strong>Q. ${item.q}</strong></div>
+            ${optsHtml}
+            ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
+        `;
+        container.appendChild(el);
+    });
+}
+
+// --- GLOBAL SEARCH LOGIC ---
+function performGlobalSearch() {
+    const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+    const container = document.getElementById('searchContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    if (!query) return;
+
+    const allData = getMCQs();
+    let resultsCount = 0;
+
+    Object.keys(allData).forEach(topic => {
+        allData[topic].forEach((item, idx) => {
+            const matchQ = item.q.toLowerCase().includes(query);
+            const matchOpts = item.o.some(o => o.toLowerCase().includes(query));
+            const matchNote = item.n && item.n.toLowerCase().includes(query);
+
+            if (matchQ || matchOpts || matchNote) {
+                resultsCount++;
+                const bookmarks = getBookmarks();
+                const isBookmarked = bookmarks.some(b => b.topic === topic && b.qIndex === idx);
+                
+                const el = document.createElement('div'); el.className = 'mcq-card';
+                let optsHtml = ''; 
+                item.o.forEach((opt, i) => { 
+                    const isAns = (i === item.a); 
+                    optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
+                });
+                
+                el.innerHTML = `
+                    <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topic}', ${idx}); performGlobalSearch();">★</button>
+                    <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:5px;">Topic: ${topic}</div>
+                    <div class="mcq-q"><strong>Q. ${item.q}</strong></div>
+                    ${optsHtml}
+                    ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
+                `;
+                container.appendChild(el);
+            }
+        });
+    });
+
+    if (resultsCount === 0) {
+        container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No matching questions found.</p>`;
+    }
+}
+
+// --- HOME PAGE & DYNAMIC BANNERS LOGIC ---
+function getTextNotes() { return JSON.parse(localStorage.getItem("txt_notes") || "{}"); }
+function updateStats() {
+    const data = getMCQs(); const keys = Object.keys(data); document.getElementById('statTopics').textContent = keys.length;
+    let count = 0; keys.forEach(k => count += data[k].length); document.getElementById('statQuestions').textContent = count;
+}
+
+function saveQuickNote() {
+    const text = document.getElementById('quickNoteInput').value.trim();
+    if (!text) return showToast("Enter a note first");
+    
+    let notes = getTextNotes();
+    const topic = "Quick Facts"; 
+    const cleanedText = cleanAndFormatNoteText(text);
+    
+    if (notes[topic]) {
+        notes[topic] += "\n" + cleanedText;
+    } else {
+        notes[topic] = cleanedText;
+    }
+    
+    localStorage.setItem("txt_notes", JSON.stringify(notes));
+    document.getElementById('quickNoteInput').value = '';
+    
+    showToast("Quick Point Saved!");
+    updateDeleteSelects();
+    renderHomeNote();
+}
+
+let currentTopicKeys = [];
+let currentTopicIndex = 0;
+let homeNoteInterval;
+
+function renderHomeNote() {
+    const notes = getTextNotes();
+    currentTopicKeys = Object.keys(notes);
+    const display = document.getElementById('randomNoteContent');
+    if(!display) return;
+    if (currentTopicKeys.length === 0) {
+        display.innerHTML = "No clean points saved yet. Add some in the Data Management tab!"; return;
+    }
+    
+    if (currentTopicIndex >= currentTopicKeys.length) currentTopicIndex = 0;
+    const topic = currentTopicKeys[currentTopicIndex];
+    const text = notes[topic];
+    
+    let points = text.split('\n').map(s => s.trim()).filter(s => s.length > 3);
+    shuffleArray(points);
+    const selectedPoints = points.slice(0, 3);
+    
+    let html = `<span style="color: #d97706; font-size:1.1rem; font-weight:bold;">Topic: ${topic}</span><hr style="margin:5px 0 10px; border:0; border-top:1px dashed #f59e0b">`;
+    if(selectedPoints.length > 0) {
+        selectedPoints.forEach(p => { 
+            const cleanP = cleanAndFormatNoteText(p);
+            if(cleanP) html += `<span class="note-point">${cleanP}</span>`; 
+        });
+    } else {
+        html += `<span class="note-point">• ${text.substring(0, 200)}...</span>`;
+    }
+    display.innerHTML = html;
+    currentTopicIndex++;
+}
+
+function startHomeNoteRotation() {
+    renderHomeNote();
+    clearInterval(homeNoteInterval);
+    homeNoteInterval = setInterval(renderHomeNote, 15000);
+}
+
+let noteSnippetsCache = [];
+function updateMcqFact() {
+    const data = getMCQs(); const topics = Object.keys(data); const el = document.getElementById('mcqFactText');
+    if (!el || topics.length === 0) return;
+    const topicQs = data[topics[Math.floor(Math.random() * topics.length)]];
+    if(topicQs && topicQs.length > 0) {
+        const randomQ = topicQs[Math.floor(Math.random() * topicQs.length)];
+        if (randomQ && randomQ.a >= 0 && randomQ.o && randomQ.o[randomQ.a]) {
+            el.innerHTML = `💡 <strong>Review Fact:</strong> ${randomQ.q} <br><span style="color:var(--primary-dark); display:inline-block; margin-top:5px;">➔ ${randomQ.o[randomQ.a]}</span>`;
+        }
+    }
+}
+function updateNoteSnippet() {
+    const el = document.getElementById('noteReviewText'); if (!el) return;
+    if (noteSnippetsCache.length === 0) {
+        Object.values(getTextNotes()).forEach(text => {
+            const parts = text.split('\n').map(s => s.trim()).filter(s => s.length > 5);
+            noteSnippetsCache = noteSnippetsCache.concat(parts);
+        });
+    }
+    if (noteSnippetsCache.length > 0) {
+        const snippet = noteSnippetsCache[Math.floor(Math.random() * noteSnippetsCache.length)];
+        const cleanSnippet = cleanAndFormatNoteText(snippet);
+        el.innerHTML = `📚 <strong>Note Point:</strong> ${cleanSnippet}`;
+    } else {
+        el.innerHTML = "Upload text notes to see dynamic review snippets here.";
+    }
+}
+function triggerInitialBanners() {
+    updateMcqFact(); updateNoteSnippet();
+    setInterval(updateMcqFact, 10000);
+    setInterval(updateNoteSnippet, 25000);
+}
+
+// --- CAROUSEL LOGIC ---
+let cheatImages = []; let cheatIdx = 0;
+function loadSavedCarouselImages() {
+    getAllFilesByPrefix("carousel_", (results) => {
+        cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
+        cheatImages = results.map(item => {
+            let url = item.blob;
+            if (typeof url !== 'string') {
+                if (!(url instanceof Blob)) url = new Blob([url], {type: item.meta?.type || 'image/jpeg'});
+                url = URL.createObjectURL(url);
+            }
+            return { url: url, id: item.id };
+        });
+        cheatIdx = 0; updateCarousel();
+    });
+}
+
+function handleCheatInput(e) {
+  const files = Array.from(e.target.files); if (files.length === 0) return;
+  let filesProcessed = 0;
+  
+  files.forEach(f => {
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const id = `carousel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const dataUrl = event.target.result; 
+        
+        await saveFile(id, dataUrl, {name: f.name, type: 'base64'});
+        cheatImages.push({ url: dataUrl, id: id });
+        
+        filesProcessed++;
+        if (filesProcessed === files.length) { 
+            document.getElementById('cheatInput').value = ''; 
+            cheatIdx = cheatImages.length - 1; 
+            updateCarousel(); 
+            showToast("Images Saved"); 
+        }
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+async function deleteCurrentCarouselImage() {
+    if (cheatImages.length === 0) { showToast("No images to delete."); return; }
+    if (!confirm("Permanently delete this specific cheat sheet image?")) return;
+    
+    const currentImg = cheatImages[cheatIdx];
+    await deleteFile(currentImg.id);
+    if(currentImg.url.startsWith('blob:')) URL.revokeObjectURL(currentImg.url);
+    
+    cheatImages.splice(cheatIdx, 1);
+    if (cheatIdx >= cheatImages.length) {
+        cheatIdx = Math.max(0, cheatImages.length - 1);
+    }
+    updateCarousel();
+    showToast("Image Deleted");
+}
+
+async function clearCarouselImages() {
+    if (cheatImages.length === 0) { showToast("No images to clear."); return; }
+    if (!confirm("Permanently delete ALL full-size cheat sheet images?")) return;
+    for (const img of cheatImages) await deleteFile(img.id);
+    cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
+    cheatImages = []; cheatIdx = 0; updateCarousel(); showToast("All Images Deleted");
+}
+function moveCarousel(dir) { if (cheatImages.length <= 1) return; cheatIdx = (cheatIdx + dir + cheatImages.length) % cheatImages.length; updateCarousel(); }
+function updateCarousel() {
+  const imgEl = document.getElementById('carouselImg'); const placeholderEl = document.getElementById('carouselPlaceholder'); const counterEl = document.getElementById('carouselCounter'); const deleteBtn = document.getElementById('deleteCurrentImgBtn');
+  if(!imgEl) return;
+  if (cheatImages.length > 0) {
+      imgEl.src = cheatImages[cheatIdx].url; imgEl.style.display = 'block'; placeholderEl.style.display = 'none'; 
+      counterEl.textContent = `${cheatIdx + 1} / ${cheatImages.length} Saved Images`;
+      if(deleteBtn) deleteBtn.style.display = 'inline-flex';
+  } else {
+      imgEl.src = ""; imgEl.style.display = 'none'; placeholderEl.style.display = 'block'; counterEl.textContent = `0 / 0`;
+      if(deleteBtn) deleteBtn.style.display = 'none';
+  }
+}
+
+// --- PDF & ADVANCED MCQS LOGIC ---
+function renderPDF(blob, containerId) {
+  const container = document.getElementById(containerId); container.innerHTML = '<div style="color:white; padding-top:20px;">Loading PDF...</div>';
+  pdfjsLib.getDocument({url: URL.createObjectURL(blob)}).promise.then(pdf => {
+    container.innerHTML = '';
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      pdf.getPage(pageNum).then(page => {
+        const viewport = page.getViewport({scale: 1.5}); const canvas = document.createElement('canvas'); canvas.className = 'pdf-page-canvas';
+        canvas.height = viewport.height; canvas.width = viewport.width; container.appendChild(canvas);
+        page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport });
+      });
+    }
+  }).catch(err => { container.innerHTML = '<div style="color:#ffcccc">Error rendering PDF.</div>'; });
+}
+function setExtractStatus(msg) { const el = document.getElementById('extractStatus'); if (el) el.textContent = msg; }
+
+function normalizeExtractedMCQText(text) {
+  let raw = (text || '').replace(/\r/g, '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/[–—]/g, '-').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
+  
+  raw = raw.replace(/\s+(Q\s*(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?|(?:\b|^|\n)\(?\d+\)?\s*[\).:]\s+)/gi, '\n\n$1');
+  raw = raw.replace(/\s+((?:Choice\s*)?\(?[A-Ea-e]\)?\s*[\).:]\s+)/gi, '\n$1');
+  raw = raw.replace(/\s+((?:Ans|Answer)\s*[:.-]?\s*[A-Ea-e]\b)/gi, '\n$1');
+  raw = raw.replace(/\s+((?:Note|Explanation)\s*[:.-]\s*)/gi, '\n$1');
+
+  const lines = raw.split('\n').map(line => line.trim()).filter(Boolean);
+  const questions = []; let current = null; let lastField = '';
+
+  function finishCurrent() {
+    if (!current) return;
+    current.q = current.q.replace(/\s+/g, ' ').trim(); current.o = current.o.map(opt => (opt || '').replace(/\s+/g, ' ').trim()); current.n = (current.n || '').replace(/\s+/g, ' ').trim();
+    const usableOptions = current.o.filter(Boolean);
+    if (current.q && usableOptions.length >= 2) { current.o = usableOptions; questions.push(current); }
+  }
+
+  const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]?\s*(.+)?$/i;
+  const optMatchRegex = /^(?:Choice\s*)?\(?([A-E])\)?\s*[\).:]\s*(.+)$/i;
+  const ansMatchRegex = /^(?:Ans|Answer)\s*[:.-]?\s*([A-E])\b/i;
+  const noteMatchRegex = /^(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
+
+  for (const originalLine of lines) {
+    let line = originalLine.replace(/^[-*•]+\s*/, '').replace(/^Question\s*/i, 'Q').trim();
+    if (/^(page\s*)?\d+\s*(of\s*\d+)?$/i.test(line) || /^(header|footer|copyright|downloaded from|www\.|https?:\/\/)/i.test(line)) continue;
+    
+    const qMatch = line.match(qStartRegex);
+    if (qMatch) { finishCurrent(); current = { q: (qMatch[2] || '').trim(), o: [], a: -1, n: '' }; lastField = 'q'; continue; }
+    
+    if (!current) {
+         current = { q: line, o: [], a: -1, n: '' }; lastField = 'q'; continue;
+    }
+    
+    const optMatch = line.match(optMatchRegex);
+    if (optMatch) { const idx = optMatch[1].toUpperCase().charCodeAt(0) - 65; current.o[idx] = optMatch[2].trim(); lastField = `o${idx}`; continue; }
+    
+    const ansMatch = line.match(ansMatchRegex);
+    if (ansMatch) {
+      current.a = ansMatch[1].toUpperCase().charCodeAt(0) - 65; lastField = 'a';
+      const rest = line.replace(/^(?:Ans|Answer)\s*[:.-]?\s*[A-Ea-e]\b\s*/i, '').trim();
+      if (/^(?:Note|Explanation)\s*[:.-]/i.test(rest)) { current.n = rest.replace(/^(?:Note|Explanation)\s*[:.-]\s*/i, '').trim(); lastField = 'n'; }
+      continue;
+    }
+    
+    const noteMatch = line.match(noteMatchRegex);
+    if (noteMatch) { current.n = noteMatch[1].trim(); lastField = 'n'; continue; }
+    
+    if (lastField === 'q') current.q += ' ' + line;
+    else if (lastField && lastField.startsWith('o')) { const idx = Number(lastField.slice(1)); current.o[idx] = `${current.o[idx] || ''} ${line}`.trim(); }
+    else if (lastField === 'n') current.n += ' ' + line;
+  }
+  finishCurrent();
+  
+  return questions.map((q, index) => {
+    const parts = [`Q${index + 1}. ${q.q}`, ''];
+    q.o.forEach((opt, optIndex) => { parts.push(`${String.fromCharCode(65 + optIndex)}) ${opt}`); });
+    if (q.a >= 0 && q.a < 26) parts.push(`Ans: ${String.fromCharCode(65 + q.a)}`); if (q.n) parts.push(`Note: ${q.n}`);
+    return parts.join('\n');
+  }).join('\n\n');
+}
+async function extractTextFromPdfFile(file) {
+  const buffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i); const content = await page.getTextContent(); const rows = [];
+    content.items.forEach(item => {
+      const y = Math.round(item.transform[5]); let row = rows.find(r => Math.abs(r.y - y) <= 3);
+      if (!row) { row = { y, items: [] }; rows.push(row); }
+      row.items.push({ x: item.transform[4], text: item.str });
+    });
+    rows.sort((a, b) => b.y - a.y);
+    pages.push(rows.map(row => row.items.sort((a, b) => a.x - b.x).map(item => item.text).join(' ')).join('\n'));
+  }
+  return pages.join('\n\n');
+}
+async function extractTextFromWordFile(file) {
+  if (!window.mammoth) throw new Error('Loading...');
+  const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() }); return result.value || '';
+}
+async function extractTextFromImageFile(file) {
+  if (!window.Tesseract) throw new Error('Loading...');
+  const result = await Tesseract.recognize(file, 'eng', { logger: progress => { if (progress.status) setExtractStatus(`OCR ${progress.status} ${Math.round((progress.progress || 0) * 100)}%`); } });
+  return result.data.text || '';
+}
+async function extractMCQsFromFile() {
+  const input = document.getElementById('mcqExtractFile'); const file = input.files[0];
+  if (!file) return showToast('Choose file first.');
+  try {
+    setExtractStatus(`Reading ${file.name}...`); const name = file.name.toLowerCase(); const type = file.type || ''; let text = '';
+    if (type === 'application/pdf' || name.endsWith('.pdf')) text = await extractTextFromPdfFile(file);
+    else if (name.endsWith('.docx')) text = await extractTextFromWordFile(file);
+    else if (type.startsWith('image/') || /\.(png|jpe?g|webp)$/i.test(name)) text = await extractTextFromImageFile(file);
+    else text = await file.text();
+    text = normalizeExtractedMCQText(text);
+    if (!text) throw new Error('No readable text.');
+    document.getElementById('addText').value = text;
+    if (!document.getElementById('addTopic').value.trim()) document.getElementById('addTopic').value = file.name.replace(/\.[^.]+$/, '').trim();
+    setExtractStatus(`Extracted text. Review, then click Save & Append MCQs.`); showToast('Text extracted');
+  } catch (err) { setExtractStatus(err.message || 'Extract failed.'); showToast('Failed'); }
+}
+function formatPastedMCQs() {
+  const area = document.getElementById('addText'); const cleaned = normalizeExtractedMCQText(area.value);
+  if (!cleaned) { setExtractStatus('No valid MCQs detected.'); showToast('No MCQs'); return ''; }
+  area.value = cleaned; setExtractStatus(`Formatted MCQs. Click Save & Append MCQs.`); showToast(`Formatted`); return cleaned;
+}
+function clearExtractedMCQText() { document.getElementById('addText').value = ''; document.getElementById('mcqExtractFile').value = ''; setExtractStatus('Supported format: Q1, A), B), C), D), Ans:, Note:.'); }
+
+function getMCQs() { return JSON.parse(localStorage.getItem("mcq_data") || "{}"); }
+function saveMCQs(d) { localStorage.setItem("mcq_data", JSON.stringify(d)); updateSelects(); updateStats(); updateDeleteSelects(); populateExistingTopicDropdown(); }
+
+function parseAndSaveMCQs() {
+  const t = document.getElementById('addTopic').value.trim(); let txt = document.getElementById('addText').value;
+  if(!t || !txt) return showToast("Missing Topic or Content");
+  
+  const isQP = document.getElementById('isQuestionPaper').checked;
+  const qpName = document.getElementById('qpName').value.trim();
+  
+  const cleanedBeforeSave = normalizeExtractedMCQText(txt);
+  if (cleanedBeforeSave) { txt = cleanedBeforeSave; document.getElementById('addText').value = cleanedBeforeSave; }
+  
+  let data = getMCQs(); if(!data[t]) data[t] = [];
+  
+  const preparedText = txt.replace(/\r/g, '')
+      .replace(/\s+(Q\s*(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?)/gi, '\n\n$1')
+      .replace(/\s+((?:Choice\s*)?[A-E]\s*[\).:]\s+)/gi, '\n$1')
+      .replace(/\s+((?:Ans|Answer)\s*[:.-]?\s*[A-E]\b)/gi, '\n$1')
+      .replace(/\s+((?:Note|Explanation)\s*[:.-]\s*)/gi, '\n$1');
+      
+  const lines = preparedText.split('\n'); let currentQ = null; let addedCount = 0; let dupCount = 0;
+  
+  const pushQuestion = () => {
+      if (currentQ) {
+          const existingQ = data[t].find(existing => existing.q.trim().toLowerCase() === currentQ.q.trim().toLowerCase());
+          if (existingQ) { 
+              if(isQP && qpName) {
+                  const tag = `⭐ Repeated in: ${qpName}`;
+                  existingQ.n = existingQ.n ? existingQ.n + `<br>${tag}` : tag;
+                  dupCount++;
+              } else {
+                  dupCount++;
+              }
+          } else { 
+              data[t].push(currentQ); addedCount++; 
+          }
+      }
+  };
+
+  const qStart = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?\s*/i; 
+  const optStart = /^(?:Choice\s*)?[A-E][\)\.:]\s*/i; 
+  const ansStart = /^(Ans|Answer)[\.:\-]?\s*/i; const noteStart = /^(Note|Explanation)[\.:\-]?\s*/i;
+
+  lines.forEach(line => {
+    line = line.trim(); if (!line) return;
+    if (qStart.test(line)) { pushQuestion(); currentQ = { q: line.replace(qStart, ''), o: [], a: -1, n: '' }; } 
+    else if (ansStart.test(line)) { if (currentQ) { let charCode = line.replace(ansStart, '').trim().toUpperCase().charCodeAt(0); if (charCode >= 65 && charCode <= 69) currentQ.a = charCode - 65; else currentQ.a = -1; } } 
+    else if (noteStart.test(line)) { if (currentQ) currentQ.n = line.replace(noteStart, '').trim(); } 
+    else if (optStart.test(line)) { if (currentQ) currentQ.o.push(line.replace(optStart, '').trim()); } 
+    else { if (currentQ) { if (currentQ.o.length === 0) currentQ.q += " " + line; else currentQ.o[currentQ.o.length - 1] += " " + line; } }
+  });
+  pushQuestion();
+  
+  saveMCQs(data); document.getElementById('addText').value = ''; document.getElementById('addTopic').value = '';
+  document.getElementById('existingTopicSelect').value = '';
+  showToast(`Saved & Appended ${addedCount} MCQs. (${dupCount} duplicates ${isQP ? 'tagged' : 'skipped'})`);
+}
+
+function updateSelects() {
+  const data = getMCQs(); const keys = Object.keys(data).sort();
+  const selects = [document.getElementById('viewTopicSelect'), document.getElementById('quizTopicSelect')];
+  selects.forEach(sel => {
+    if(!sel) return;
+    const currentVal = sel.value; sel.innerHTML = '<option value="">-- Select Topic --</option>';
+    keys.forEach(t => { sel.innerHTML += `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t} (${data[t].length})</option>`; });
+  });
+  populateExistingTopicDropdown();
+}
+
+function populateExistingTopicDropdown() {
+  const sel = document.getElementById('existingTopicSelect');
+  if(!sel) return;
+  const data = getMCQs();
+  const keys = Object.keys(data).sort();
+  const currentVal = sel.value;
+  sel.innerHTML = '<option value="">-- Choose Existing Topic (Optional) --</option>';
+  keys.forEach(t => {
+    sel.innerHTML += `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t} (${data[t].length} questions)</option>`;
+  });
+}
+
+function renderViewMode() {
+  const t = document.getElementById('viewTopicSelect').value; const container = document.getElementById('viewContainer'); 
+  if(!container) return;
+  container.innerHTML = '';
+  if (!t) return;
+  const bookmarks = getBookmarks();
+  
+  getMCQs()[t].forEach((item, idx) => {
+    const isBookmarked = bookmarks.some(b => b.topic === t && b.qIndex === idx);
+    const el = document.createElement('div'); el.className = 'mcq-card';
+    let optsHtml = ''; item.o.forEach((opt, i) => { const isAns = (i === item.a); optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; });
+    el.innerHTML = `
+      <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${t}', ${idx}); renderViewMode();">★</button>
+      <div class="mcq-q"><strong>Q${idx+1}. ${item.q}</strong></div>
+      ${optsHtml}
+      ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
+    `;
+    container.appendChild(el);
+  });
+}
+
+// --- QUIZ, TIMER & EXAM MODE LOGIC ---
+let activeExamQuestions = [];
+let quizTimerInterval = null;
+let remainingSeconds = 0;
+
+function toggleQuizSettings() {
+    const type = document.getElementById('quizTypeSelect').value;
+    const topicSel = document.getElementById('quizTopicSelect');
+    const sizeSel = document.getElementById('quizSizeSelect');
+    if (type === 'apo') {
+        topicSel.disabled = true; sizeSel.disabled = true;
+        document.getElementById('quizTimerSelect').value = '6600'; 
+    } else {
+        topicSel.disabled = false; sizeSel.disabled = false;
+    }
+    resetQuizMode();
+}
+function resetQuizMode() { 
+    const qc = document.getElementById('quizContainer');
+    if(qc) qc.innerHTML = ''; 
+    const erc = document.getElementById('examResultContainer');
+    if(erc) erc.style.display = 'none'; 
+    const seb = document.getElementById('submitExamBtn');
+    if(seb) seb.style.display = 'none'; 
+    const qtd = document.getElementById('quizTimerDisplay');
+    if(qtd) qtd.style.display = 'none';
+    if(quizTimerInterval) clearInterval(quizTimerInterval);
+    activeExamQuestions = []; 
+}
+
+function getExamHistory() { return JSON.parse(localStorage.getItem("exam_history") || "[]"); }
+function saveExamHistory(h) { localStorage.setItem("exam_history", JSON.stringify(h)); renderExamHistory(); }
+
+function toggleExamHistory() {
+    const el = document.getElementById('examHistoryContainer');
+    if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderExamHistory() {
+    const history = getExamHistory();
+    const div = document.getElementById('examHistoryList');
+    if(!div) return;
+    div.innerHTML = '';
+    if (history.length === 0) { div.innerHTML = "<p style='color:var(--secondary); font-size:0.9rem;'>No past exams yet.</p>"; return; }
+    
+    history.sort((a,b) => b.id - a.id).forEach(exam => {
+        div.innerHTML += `
+        <div class="exam-history-item">
+            <div>
+                <strong>Date:</strong> ${exam.date} <br>
+                <strong>Score:</strong> <span style="color:var(--success); font-weight:bold;">${exam.score} / ${exam.total}</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="retakeExam(${exam.id})">Retake Exam</button>
+        </div>`;
+    });
+}
+
+function retakeExam(id) {
+    const exam = getExamHistory().find(e => e.id === id);
+    if (!exam) return;
+    document.getElementById('quizTypeSelect').value = 'apo';
+    toggleQuizSettings();
+    activeExamQuestions = exam.questions; 
+    renderActiveExam();
+    showToast(`Retaking exam from ${exam.date}`);
+}
+
+function renderQuizMode() {
+  const type = document.getElementById('quizTypeSelect').value;
+  const t = document.getElementById('quizTopicSelect').value;
+  const size = document.getElementById('quizSizeSelect').value;
+  resetQuizMode();
+  
+  let questions = [];
+  const allData = getMCQs();
+
+  if (type === 'apo') {
+      Object.values(allData).forEach(topicQs => questions.push(...topicQs));
+      shuffleArray(questions);
+      activeExamQuestions = questions.slice(0, 110);
+      if(activeExamQuestions.length < 110 && activeExamQuestions.length > 0) showToast(`Only ${activeExamQuestions.length} total Qs found.`);
+      renderActiveExam();
+  } else {
+      if(!t) return showToast("Select a topic.");
+      const topicData = allData[t];
+      if(!topicData || topicData.length === 0) return showToast("No questions in this topic.");
+      questions = [...topicData]; shuffleArray(questions); 
+      let limit = size === 'all' ? questions.length : parseInt(size);
+      questions = questions.slice(0, limit); 
+      renderPracticeQuiz(questions, t);
+  }
+  
+  startQuizTimer();
+}
+
+function startQuizTimer() {
+    const timerVal = document.getElementById('quizTimerSelect').value;
+    if(timerVal === 'none') return;
+    
+    remainingSeconds = parseInt(timerVal);
+    const timerDisplay = document.getElementById('quizTimerDisplay');
+    const clock = document.getElementById('timerClock');
+    timerDisplay.style.display = 'block';
+    
+    quizTimerInterval = setInterval(() => {
+        remainingSeconds--;
+        let m = Math.floor(remainingSeconds / 60);
+        let s = remainingSeconds % 60;
+        clock.textContent = `⏱️ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        
+        if (remainingSeconds <= 0) {
+            clearInterval(quizTimerInterval);
+            showToast("Time's Up! Submitting exam automatically.");
+            submitExam();
+        }
+    }, 1000);
+}
+
+function renderPracticeQuiz(questions, topicName) {
+    const div = document.getElementById('quizContainer'); 
+    if(!div || questions.length === 0) return showToast("No questions found.");
+    const bookmarks = getBookmarks();
+
+    questions.forEach((q, i) => {
+        const isBookmarked = bookmarks.some(b => b.topic === topicName && b.qIndex === i);
+        div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topicName}', ${i})">★</button>
+          <strong>Q${i+1}: ${q.q}</strong>
+          ${q.o.map((o,j) => `<div class="mcq-opt" onclick="check(this, ${j}, ${q.a})">${String.fromCharCode(65+j)}) ${o}</div>`).join('')}
+          ${q.n ? `<div class="note-box" id="note-${i}" style="display:none">Note: ${q.n}</div>` : ''}
+        </div>`;
+    });
+    showToast(`Practice Quiz Started: ${questions.length} Qs.`);
+}
+
+function renderActiveExam() {
+    const div = document.getElementById('quizContainer'); 
+    if(!div || activeExamQuestions.length === 0) return showToast("No questions found.");
+    const bookmarks = getBookmarks();
+
+    activeExamQuestions.forEach((q, i) => {
+        const isBookmarked = bookmarks.some(b => b.topic === "APO Exam" && b.qIndex === i);
+        div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('APO Exam', ${i})">★</button>
+          <strong>Q${i+1}: ${q.q}</strong>
+          ${q.o.map((o,j) => `<div class="mcq-opt" onclick="selectExamOption(this, ${j})">${String.fromCharCode(65+j)}) ${o}</div>`).join('')}
+          ${q.n ? `<div class="note-box" id="note-${i}" style="display:none">Note: ${q.n}</div>` : ''}
+        </div>`;
+    });
+    document.getElementById('submitExamBtn').style.display = 'inline-block';
+    showToast(`APO Exam Started: ${activeExamQuestions.length} Qs.`);
+}
+
+function check(el, idx, ans) {
+  const card = el.closest('.mcq-card'); if(card.classList.contains('answered')) return;
+  card.classList.add('answered'); el.classList.add('selected');
+  if(idx === ans) { el.classList.add('correct'); showToast("Correct!"); } 
+  else { el.classList.add('wrong'); const correctEl = card.querySelectorAll('.mcq-opt')[ans]; if(correctEl) correctEl.classList.add('correct'); showToast("Wrong!"); }
+  const note = document.getElementById(`note-${card.id.split('-')[1]}`); if(note) note.style.display = 'block';
+}
+
+function selectExamOption(el, idx) {
+    const card = el.closest('.mcq-card');
+    if (card.classList.contains('submitted')) return; 
+    card.querySelectorAll('.mcq-opt').forEach(opt => { opt.classList.remove('selected'); opt.removeAttribute('data-selected'); });
+    el.classList.add('selected'); el.setAttribute('data-selected', 'true');
+}
+
+function submitExam() {
+    if(quizTimerInterval) clearInterval(quizTimerInterval);
+    const qtd = document.getElementById('quizTimerDisplay');
+    if(qtd) qtd.style.display = 'none';
+
+    const qc = document.getElementById('quizContainer');
+    if(!qc) return;
+    const cards = qc.querySelectorAll('.mcq-card');
+    let score = 0;
+
+    cards.forEach((card, i) => {
+        card.classList.add('submitted'); 
+        const ans = parseInt(card.getAttribute('data-ans'));
+        const options = card.querySelectorAll('.mcq-opt');
+
+        options.forEach((opt, j) => {
+            const isSelected = opt.getAttribute('data-selected') === 'true';
+            if (isSelected && j === ans) { opt.classList.add('correct'); score++; } 
+            else if (isSelected && j !== ans) { opt.classList.add('wrong'); } 
+            else if (!isSelected && j === ans) { opt.classList.add('correct'); }
+            opt.style.cursor = 'default';
+        });
+        const note = document.getElementById(`note-${i}`); if(note) note.style.display = 'block';
+    });
+
+    const resContainer = document.getElementById('examResultContainer');
+    resContainer.style.display = 'block';
+    resContainer.innerHTML = `<h2 style="color:var(--success); margin:10px 0;">APO Exam Complete!</h2><h3>Final Score: ${score} / ${cards.length}</h3>`;
+    document.getElementById('submitExamBtn').style.display = 'none';
+    
+    let hist = getExamHistory();
+    hist.push({
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        score: score,
+        total: cards.length,
+        questions: activeExamQuestions
+    });
+    saveExamHistory(hist);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateDeleteSelects() {
+  const mcqData = getMCQs(); const mcqKeys = Object.keys(mcqData).sort();
+  const mcqSel = document.getElementById('deleteMcqSelect');
+  if(mcqSel) {
+      mcqSel.innerHTML = '<option value="">-- Select MCQ Topic --</option>';
+      mcqKeys.forEach(t => { mcqSel.innerHTML += `<option value="${t}">${t} (${mcqData[t].length})</option>`; });
+  }
+  populateSpecificMcqDropdown();
+
+  getKeys(keys => {
+    const notes = getTextNotes();
+    const noteKeys = new Set([...Object.keys(notes), ...keys.map(k=>k.replace('note_','')).filter(k => !k.startsWith('paper_') && !k.startsWith('carousel_'))]);
+    const noteSel = document.getElementById('deleteNoteSelect'); 
+    if(noteSel) {
+        noteSel.innerHTML = '<option value="">-- Select Note Topic --</option>';
+        Array.from(noteKeys).sort().forEach(o => { noteSel.innerHTML += `<option value="${o}">${o}</option>`; });
+    }
+  });
+  renderDeletePaperList();
+}
+
+function populateSpecificMcqDropdown() {
+    const topic = document.getElementById('deleteMcqSelect').value;
+    const specificSel = document.getElementById('deleteSpecificMcqSelect');
+    if(!specificSel) return;
+    specificSel.innerHTML = '<option value="">-- Select Specific Question to Delete --</option>';
+    
+    if(!topic) return;
+    const mcqData = getMCQs();
+    const questions = mcqData[topic] || [];
+    
+    questions.forEach((q, idx) => {
+        const preview = q.q.length > 60 ? q.q.substring(0, 60) + '...' : q.q;
+        specificSel.innerHTML += `<option value="${idx}">Q${idx+1}: ${preview}</option>`;
+    });
+}
+
+function deleteCurrentTopic() {
+  const t = document.getElementById('deleteMcqSelect').value; if (!t) return showToast("Select an MCQ topic first.");
+  if (confirm(`Delete ALL MCQs for topic: "${t}"?`)) { 
+      let d = getMCQs(); delete d[t]; saveMCQs(d); 
+      const vc = document.getElementById('viewContainer'); if(vc) vc.innerHTML = ''; 
+      const qc = document.getElementById('quizContainer'); if(qc) qc.innerHTML = ''; 
+      showToast("Topic Deleted"); updateDeleteSelects(); updateSelects(); 
+  }
+}
+
+function deleteSpecificQuestion() {
+    const topic = document.getElementById('deleteMcqSelect').value;
+    const qIndex = document.getElementById('deleteSpecificMcqSelect').value;
+    if(!topic || qIndex === "") return showToast("Select a topic and specific question.");
+    
+    if(confirm("Permanently delete this individual question?")) {
+        let d = getMCQs();
+        if(d[topic]) {
+            d[topic].splice(parseInt(qIndex), 1);
+            if(d[topic].length === 0) delete d[topic];
+            saveMCQs(d);
+            showToast("Question Deleted");
+            updateDeleteSelects();
+            updateSelects();
+        }
+    }
+}
+
+function deleteCurrentNote() {
+    const t = document.getElementById('deleteNoteSelect').value; if (!t) return showToast("Select a note topic first.");
+    if (confirm(`Delete note: "${t}"?`)) {
+        let n = getTextNotes(); delete n[t]; localStorage.setItem("txt_notes", JSON.stringify(n));
+        deleteFile(`note_${t}`).then(() => { 
+            showToast("Note Deleted"); 
+            const nda = document.getElementById('noteDisplayArea'); if(nda) nda.innerHTML = ''; 
+            loadSavedNotesList(); renderHomeNote(); updateDeleteSelects(); 
+        }).catch(() => showToast("Error"));
+    }
+}
+function renderDeletePaperList() {
+    getKeys(keys => {
+        const div = document.getElementById('deletePaperList'); if(!div) return;
+        div.innerHTML = '';
+        const paperKeys = keys.filter(k=>k.startsWith('paper_')).sort().reverse();
+        if (paperKeys.length === 0) { div.innerHTML = '<div style="color:var(--secondary); padding:0.5rem; background:var(--card); border-radius:0.5rem; border: 1px solid var(--border);">No papers uploaded.</div>'; return; }
+        paperKeys.forEach(k => {
+          getFile(k, res => {
+            if (res) {
+                const item = document.createElement('div'); item.className = 'pdf-list-item';
+                item.style.cssText = 'background:var(--card); padding:0.75rem; margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center; border: 1px solid var(--border);';
+                item.innerHTML = `<span style="font-size: 0.9rem;"><strong>${res.meta.name}</strong></span><button class="btn btn-danger btn-sm" onclick="deletePaper('${k}')">Delete</button>`;
+                div.appendChild(item);
+            }
+          });
+        });
+    });
+}
+function saveNote() {
+  const t = document.getElementById('noteTopic').value.trim(); const rawTxt = document.getElementById('noteText').value; const f = document.getElementById('notePdf').files[0];
+  if (!t) return showToast("Topic name is required");
+  
+  if(rawTxt) { 
+      let n = getTextNotes(); 
+      const formattedTxt = cleanAndFormatNoteText(rawTxt);
+      n[t] = n[t] ? n[t] + "\n" + formattedTxt : formattedTxt; 
+      localStorage.setItem("txt_notes", JSON.stringify(n)); 
+      renderHomeNote(); 
+  }
+  if(f) { saveFile(`note_${t}`, f, {name: f.name}).then(() => { loadSavedNotesList(); updateDeleteSelects(); showToast("Note & PDF Saved"); }); } 
+  else { showToast("Note Saved"); loadSavedNotesList(); updateDeleteSelects(); }
+  document.getElementById('noteTopic').value = ''; document.getElementById('noteText').value = ''; document.getElementById('notePdf').value = '';
+}
+function loadSavedNotesList() {
+  getKeys(keys => {
+    const opts = new Set([...Object.keys(getTextNotes()), ...keys.map(k=>k.replace('note_','')).filter(k => !k.startsWith('paper_') && !k.startsWith('carousel_'))]);
+    const sel = document.getElementById('savedNotesSelect'); if(!sel) return;
+    const currentVal = sel.value; sel.innerHTML = '<option value="">-- Select Note --</option>';
+    Array.from(opts).sort().forEach(o => { sel.innerHTML += `<option value="${o}" ${o === currentVal ? 'selected' : ''}>${o}</option>`; });
+    if (currentVal && !opts.has(currentVal)) {
+        const nda = document.getElementById('noteDisplayArea');
+        if(nda) nda.innerHTML = '';
+    }
+  });
+}
+function loadNoteView() {
+  const t = document.getElementById('savedNotesSelect').value; const area = document.getElementById('noteDisplayArea'); if(!area) return;
+  area.innerHTML = '';
+  if(!t) return;
+  const txt = getTextNotes()[t];
+  if(txt) area.innerHTML += `<div style="background:var(--card); padding:10px; margin-bottom:10px; border:1px solid var(--border); white-space:pre-wrap;">${txt}</div>`;
+  getFile(`note_${t}`, res => { if(res) { area.innerHTML += `<div id="notePdfRender" class="pdf-viewer-container"></div>`; renderPDF(res.blob, 'notePdfRender'); } });
+}
+function savePaper() {
+  const n = document.getElementById('paperName').value.trim(); const f = document.getElementById('paperPdf').files[0];
+  if(n && f) { saveFile(`paper_${Date.now()}`, f, {name: n, date: new Date().toLocaleDateString()}).then(() => { loadPaperList(); updateDeleteSelects(); showToast("Paper Saved"); }); } 
+  else { showToast("Paper Name and PDF required"); }
+  document.getElementById('paperName').value = ''; document.getElementById('paperPdf').value = '';
+}
+function loadPaperList() {
+  getKeys(keys => {
+    const div = document.getElementById('paperList'); if(!div) return;
+    div.innerHTML = '';
+    const paperKeys = keys.filter(k=>k.startsWith('paper_')).sort().reverse();
+    if (paperKeys.length === 0) { div.innerHTML = '<div style="color:var(--secondary); padding:1rem;">No papers uploaded yet.</div>'; return; }
+    paperKeys.forEach(k => {
+      getFile(k, res => {
+        if (res) {
+            const item = document.createElement('div'); item.className = 'pdf-list-item';
+            item.style.cssText = 'background:var(--bg); padding:0.75rem; margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center; border: 1px solid var(--border);';
+            item.innerHTML = `<span>${res.meta.name}</span><div><button class="btn btn-secondary btn-sm" onclick="viewPaper('${k}', '${res.meta.name}')">View</button></div>`;
+            div.appendChild(item);
+        }
+      });
+    });
+  });
+}
+function viewPaper(id, name) {
+  const view = document.getElementById('paperViewer'); document.getElementById('paperTitleViewer').innerText = name; view.style.display = 'block';
+  getFile(id, res => { renderPDF(res.blob, 'pdfRenderer'); }); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+function deletePaper(id) { if(confirm("Permanently delete this paper?")) { deleteFile(id).then(() => { showToast("Paper Deleted"); loadPaperList(); renderDeletePaperList(); const pv = document.getElementById('paperViewer'); if(pv) pv.style.display='none'; }); } }
+</script>
+</body>
+</html>
