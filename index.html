@@ -123,6 +123,60 @@
     .carousel-container { height: 60vh; }
     .exam-history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
   }
+    @media screen and (max-width: 768px) {
+  /* Crisp, proportional mobile typography */
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  /* Allow text selection inside inputs/notes */
+  input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Scale headers for small screens */
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.3rem; }
+  h3 { font-size: 1.1rem; }
+
+  /* Finger-friendly button padding */
+  button, input, select, .btn {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+}
+
+/* Safe area padding for modern phone notches/gestures */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Fullscreen Image Lightbox Modal */
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  justify-content: center;
+  align-items: center;
+}
+
+.image-modal img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
 </style>
 </head>
 <body>
