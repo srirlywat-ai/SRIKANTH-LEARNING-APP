@@ -6,7 +6,7 @@
   "orientation": "any",
   "scope": "/",
   "short_name": "Srikanth App",
-  "start_url": "/",
+  "start_url": "https://srirlywat-ai.github.io/",
   "theme_color": "#2738d7",
   "id": "app.srikanth.learningapp",
   "description": "Study and preparation app for railway ldce examinations",
