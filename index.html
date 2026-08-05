@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SRIKANTH LEARNING APP</title>
-<link rel="manifest" href="./manifest.json">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -23,6 +23,7 @@
     --danger: #ef4444;
     --bg: #f1f5f9; 
     --card: #ffffff; 
+    --card-rgb: 255, 255, 255;
     --text: #0f172a; 
     --border: #cbd5e1;
   }
@@ -35,30 +36,57 @@
     --secondary-light: #cbd5e1;
     --bg: #0f172a;
     --card: #1e293b;
+    --card-rgb: 30, 41, 59;
     --text: #f8fafc;
     --border: #334155;
   }
 
   * { box-sizing: border-box; }
-  body { font-family: "Segoe UI", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 40px; transition: background 0.3s, color 0.3s; }
+  html { scroll-behavior: smooth; }
+  body { 
+    font-family: "Segoe UI", sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    margin: 0; 
+    padding-bottom: 40px; 
+    transition: background 0.3s, color 0.3s; 
+    -webkit-tap-highlight-color: transparent;
+  }
   
   h1, h2, h3, h4, h5, h6 { text-transform: uppercase; }
 
-  /* Navigation */
-  .navbar { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  /* Navigation with Frosted Glass Effect */
+  .navbar { 
+    background: var(--card); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(var(--card-rgb), 0.85);
+    border-bottom: 1px solid var(--border); 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+    padding: 0.8rem; 
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02); 
+  }
   .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 4px; align-items: center; justify-content: space-between; }
   .nav-links { display: flex; gap: 0.75rem; overflow-x: auto; }
   
   .nav-btn { 
     padding: 0.6rem 1.2rem; border-radius: 0.75rem; border: none; background: transparent; 
     color: var(--secondary); font-weight: 600; cursor: pointer; font-size: 0.95rem; white-space: nowrap; transition: all 0.2s ease;
-    text-transform: uppercase;
+    text-transform: uppercase; display: flex; align-items: center; gap: 6px; user-select: none;
   }
   .nav-btn:hover:not(.active) { background: var(--border); color: var(--primary-dark); }
-  .nav-btn.active { background: linear-gradient(135deg, var(--primary-light), var(--primary)); color: white; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+  .nav-btn.active { 
+    background: linear-gradient(135deg, var(--primary-light), var(--primary)); 
+    color: white; 
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
+  }
 
-  .btn { padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; background: var(--primary); color: white; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s; }
+  .btn { padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; background: var(--primary); color: white; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s; user-select: none; }
   .btn:hover { background: var(--primary-dark); }
+  .btn:active { transform: scale(0.97); }
   .btn-danger { background: var(--danger); color: white; }
   .btn-danger:hover { background: #c52929; }
   .btn-secondary { background: var(--secondary); color: white; }
@@ -67,32 +95,74 @@
 
   .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
   .section { display: none; }
-  .section.active { display: block; }
-  .card { background: var(--card); border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem; border: 1px solid var(--border); }
+  .section.active { display: block; animation: fadeInScale 0.25s ease-out forwards; }
   
-  input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 0.5rem; margin-bottom: 1rem; }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .card { 
+    background: var(--card); 
+    border-radius: 1rem; 
+    padding: 1.5rem; 
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -1px rgba(0,0,0,0.02); 
+    margin-bottom: 1.5rem; 
+    border: 1px solid var(--border); 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.06), 0 4px 6px -2px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    position: relative;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--bg);
+  }
+  .card h3::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+  
+  input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 0.5rem; margin-bottom: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
   .input-group { display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; }
   .input-group select { flex-grow: 1; margin-bottom: 0; }
-  input[type="checkbox"] { width: auto; margin-bottom: 0; transform: scale(1.2); cursor: pointer; }
+  input[type="checkbox"] { width: auto; margin-bottom: 0; transform: scale(1.2); cursor: pointer; accent-color: var(--primary); }
   
   .quiz-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .quiz-controls select { width: auto; flex-grow: 1; min-width: 150px; }
   
   #viewContainer, #quizContainer, #searchContainer, #bookmarkContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: stretch; }
-  @media (max-width: 768px) { #viewContainer, #quizContainer, #searchContainer, #bookmarkContainer { grid-template-columns: 1fr; } }
+  #homeQuickSearchResults { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: stretch; margin-top: 15px; }
+  @media (max-width: 768px) { #viewContainer, #quizContainer, #searchContainer, #bookmarkContainer, #homeQuickSearchResults { grid-template-columns: 1fr; } }
   
   .mcq-card { border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem; background: var(--card); display: flex; flex-direction: column; position: relative; }
   .bookmark-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--secondary); }
   .bookmark-btn.bookmarked { color: #f59e0b; }
 
-  .mcq-opt { padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.3rem; margin-bottom: 0.5rem; cursor: pointer; transition: background 0.1s; }
+  .mcq-opt { padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.3rem; margin-bottom: 0.5rem; cursor: pointer; transition: background 0.1s; position: relative; overflow: hidden; user-select: none; }
   .mcq-opt:hover { background: rgba(0,0,0,0.02); }
   .mcq-opt.correct { background: #dcfce7 !important; border-color: var(--success) !important; color: #166534; font-weight: bold;}
+  .mcq-opt.correct::after { content: ' ✓'; float: right; font-weight: bold; }
   .mcq-opt.wrong { background: #fee2e2 !important; border-color: var(--danger) !important; color: #991b1b; text-decoration: line-through;}
+  .mcq-opt.wrong::after { content: ' ✗'; float: right; font-weight: bold; }
   .mcq-opt.selected { background: #e0e7ff; border-color: var(--primary); } 
   .note-box { margin-top: auto; padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b; font-size: 0.9rem; color: #d97706; border-radius: 0 0.375rem 0.375rem 0; }
 
-  .carousel-container { position: relative; height: 80vh; min-height: 500px; background: #111; border-radius: 0.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .carousel-container { position: relative; height: 60vh; min-height: 400px; background: #111; border-radius: 0.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .carousel-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
   #carouselPlaceholder { position: absolute; text-align: center; width: 100%; color: #aaa; padding: 1rem; }
   .carousel-ctrl { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; padding: 1.2rem; cursor: pointer; font-size: 1.5rem; border-radius: 50%; z-index: 50; transition: background 0.2s; }
@@ -105,94 +175,143 @@
   .dynamic-banner { background: var(--card); border-radius: 0.75rem; padding: 1rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1rem; border-left: 4px solid var(--primary); font-size: 1rem; display: flex; align-items: center; min-height: 80px; border: 1px solid var(--border);}
   .dynamic-banner.notes-banner { border-left-color: var(--success); }
   
-  .pdf-viewer-container { background: #525659; padding: 20px; border-radius: 8px; height: 600px; overflow-y: auto; text-align: center; }
-  .pdf-page-canvas { box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 15px; max-width: 100%; }
+  .pdf-viewer-container { background: #525659; padding: 20px; border-radius: 8px; height: 600px; overflow-y: auto; text-align: center; position: relative; cursor: pointer; }
+  .pdf-viewer-container::after { content: '🔍 Click to Expand Fullscreen'; position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; pointer-events: none; opacity: 0.8; }
+  .pdf-page-canvas { box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 15px; max-width: 100%; display: block; margin-left: auto; margin-right: auto; }
   
   .exam-history-item { background: var(--bg); border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
 
-  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #334155; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
+  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #334155; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; max-width: 90%; text-align: center; line-height: 1.4; }
   #toast.show { opacity: 1; }
 
-  .timer-badge { font-size: 1.2rem; font-weight: bold; background: var(--primary); color: white; padding: 0.4rem 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1rem; }
+  @keyframes pulseTimer {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  .timer-badge { font-size: 1.2rem; font-weight: bold; background: var(--primary); color: white; padding: 0.4rem 1rem; border-radius: 0.5rem; display: inline-block; margin-bottom: 1rem; animation: pulseTimer 2s infinite ease-in-out; }
+
+  #submitExamBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    background: var(--success);
+  }
+
+  /* Fullscreen PDF Modal Overlay */
+  #pdfFullscreenModal { display: none; position: fixed; z-index: 5000; left: 0; top: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; }
+  #pdfFullscreenModal .close-modal { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 50px; font-weight: bold; cursor: pointer; z-index: 5010; background: rgba(0,0,0,0.5); padding: 0 15px; border-radius: 5px; }
+  #fullscreenPdfContent { width: 90vw; height: 90vh; overflow-y: auto; background: #525659; padding: 20px; border-radius: 8px; text-align: center; }
+
+  #imageModal, #passwordOverlay, #deletePasswordModal {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  #imageModal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; flex-direction: column; }
+  #imageModal img { width: 100vw; height: 100vh; object-fit: contain; }
+  #imageModal .close-modal { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 50px; font-weight: bold; cursor: pointer; z-index: 2010; background: rgba(0,0,0,0.5); padding: 0 15px; border-radius: 5px; }
+  .modal-actions { position: absolute; bottom: 30px; display: flex; gap: 15px; z-index: 2010; }
+
+  #passwordOverlay { position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  .password-box { background: var(--card); padding: 2rem; border-radius: 1rem; border: 1px solid var(--border); text-align: center; max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+
+  .syllabus-category { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; overflow: hidden; background: var(--card); }
+  .syllabus-cat-header { background: rgba(37, 99, 235, 0.05); padding: 0.75rem 1rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid var(--border); }
+  .syllabus-sub-list { padding: 0.5rem 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .syllabus-sub-item { font-size: 0.9rem; color: var(--secondary); display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px dashed var(--border); }
+  .syllabus-sub-item:last-child { border-bottom: none; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--secondary);
+    grid-column: span 2;
+    background: var(--card);
+    border-radius: 1rem;
+    border: 1px dashed var(--border);
+  }
+  .empty-state span {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--secondary-light); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
 
   @media (max-width: 768px) {
     .quiz-controls { flex-direction: column; align-items: stretch; }
     .input-group { flex-direction: column; }
     .btn { width: 100%; justify-content: center; margin-bottom: 0.5rem; }
     .btn-sm { width: auto; }
-    .carousel-container { height: 60vh; }
+    .carousel-container { height: 50vh; }
     .exam-history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    #submitExamBtn { left: 20px; right: 20px; width: auto; border-radius: 1rem; }
   }
-    @media screen and (max-width: 768px) {
-  /* Crisp, proportional mobile typography */
-  body {
-    font-size: 14px;
-    line-height: 1.4;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: none;
-  }
-
-  /* Allow text selection inside inputs/notes */
-  input, textarea, [contenteditable="true"] {
-    -webkit-user-select: text;
-    user-select: text;
-  }
-
-  /* Scale headers for small screens */
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.3rem; }
-  h3 { font-size: 1.1rem; }
-
-  /* Finger-friendly button padding */
-  button, input, select, .btn {
-    font-size: 14px;
-    padding: 10px 14px;
-  }
-}
-
-/* Safe area padding for modern phone notches/gestures */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Fullscreen Image Lightbox Modal */
-.image-modal {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  justify-content: center;
-  align-items: center;
-}
-
-.image-modal img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
 </style>
 </head>
 <body>
 
+<!-- PASSWORD PROTECTION OVERLAY -->
+<div id="passwordOverlay">
+    <div class="password-box">
+        <h2 style="color:var(--primary); margin-top:0;">🔒 Security Lock</h2>
+        <p style="color:var(--secondary); font-size:0.9rem; margin-bottom:1.5rem;">Enter your app password to open Srikanth Learning App (Default: 1234 or set in Data Management).</p>
+        <input type="password" id="appPasswordInput" placeholder="Enter App Password..." style="text-align:center; font-size:1.2rem; letter-spacing:2px;">
+        <button class="btn" onclick="verifyAppPassword()" style="width:100%; justify-content:center;">Unlock App</button>
+        <p style="margin-top: 15px;"><a href="#" onclick="resetAppEmergency()" style="color:var(--danger); font-size:0.8rem; text-decoration:underline;">Forgot password? Reset App Data</a></p>
+    </div>
+</div>
+
+<!-- PASSWORD PROMPT MODAL FOR DELETIONS -->
+<div id="deletePasswordModal" style="display:none; position:fixed; z-index:4000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center;">
+    <div class="password-box">
+        <h3 style="color:var(--danger); margin-top:0;">🔐 Password Required</h3>
+        <p style="color:var(--secondary); font-size:0.9rem; margin-bottom:1rem;">Enter app password to confirm deletion:</p>
+        <input type="password" id="deleteActionPasswordInput" placeholder="Enter Password..." style="text-align:center; font-size:1.1rem;">
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn btn-secondary" onclick="document.getElementById('deletePasswordModal').style.display='none'">Cancel</button>
+            <button class="btn btn-danger" onclick="executeVerifiedDeletion()">Confirm Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- FULLSCREEN IMAGE MODAL -->
+<div id="imageModal">
+    <span class="close-modal" onclick="closeImageModal()">&times;</span>
+    <img id="modalImage" src="" alt="Fullscreen Cheat Sheet">
+    <div class="modal-actions">
+        <a id="downloadModalBtn" class="btn" download="cheatsheet.jpg">Download Image</a>
+        <button class="btn btn-danger" onclick="requestDeleteModalImage()">Delete Image</button>
+    </div>
+</div>
+
+<!-- FULLSCREEN PDF MODAL -->
+<div id="pdfFullscreenModal">
+    <span class="close-modal" onclick="closePdfFullscreenModal()">&times;</span>
+    <div id="fullscreenPdfContent"></div>
+</div>
+
 <nav class="navbar">
   <div class="nav-inner">
     <div class="nav-links">
-      <button class="nav-btn active" onclick="switchTab('home')">Home</button>
-      <button class="nav-btn" onclick="switchTab('images')">Images</button>
-      <button class="nav-btn" onclick="switchTab('search')">Search</button>
-      <button class="nav-btn" onclick="switchTab('bookmarks')">Bookmarks</button>
-      <button class="nav-btn" onclick="switchTab('view')">VIEW MCQ</button>
-      <button class="nav-btn" onclick="switchTab('quiz')">Quiz</button>
-      <button class="nav-btn" onclick="switchTab('notes')">Notes</button>
-      <button class="nav-btn" onclick="switchTab('papers')">Papers</button>
-      <button class="nav-btn" onclick="switchTab('backup')">Data Management</button>
+      <button class="nav-btn active" onclick="switchTab('home')">🏠 Home</button>
+      <button class="nav-btn" onclick="switchTab('images')">🖼️ Images</button>
+      <button class="nav-btn" onclick="switchTab('syllabus')">📚 Syllabus</button>
+      <button class="nav-btn" onclick="switchTab('bookmarks')">★ Bookmarks</button>
+      <button class="nav-btn" onclick="switchTab('view')">👁️ View</button>
+      <button class="nav-btn" onclick="switchTab('quiz')">✍️ Quiz</button>
+      <button class="nav-btn" onclick="switchTab('notes')">📝 Notes</button>
+      <button class="nav-btn" onclick="switchTab('papers')">📄 Papers</button>
+      <button class="nav-btn" onclick="switchTab('backup')">⚙️ Data</button>
     </div>
     <button class="btn btn-secondary btn-sm" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Dark</button>
   </div>
@@ -202,7 +321,28 @@ body {
 
 <div class="container">
 
+  <!-- HOME PAGE -->
   <div id="home" class="section active">
+    <!-- DASHBOARD METRICS -->
+    <div class="card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(59,130,246,0.1)); border: 1px solid var(--border);">
+        <h3 style="color:var(--primary-dark); margin-top: 0; margin-bottom: 10px;">📊 APO LDCE Progress Dashboard</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 15px;">
+            <div style="background:var(--card); padding:10px; border-radius:0.5rem; border:1px solid var(--border);">
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--primary);" id="dashCovered">0</div>
+                <div style="font-size:0.8rem; color:var(--secondary);">Topics Covered</div>
+            </div>
+            <div style="background:var(--card); padding:10px; border-radius:0.5rem; border:1px solid var(--border);">
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--danger);" id="dashUntouched">0</div>
+                <div style="font-size:0.8rem; color:var(--secondary);">Topics Untouched</div>
+            </div>
+            <div style="background:var(--card); padding:10px; border-radius:0.5rem; border:1px solid var(--border);">
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--success);" id="dashAnswered">0</div>
+                <div style="font-size:0.8rem; color:var(--secondary);">MCQs Answered</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK REVIEW NOTE -->
     <div class="card" style="background: rgba(59, 130, 246, 0.05); border: 1px solid var(--border);">
         <h3 style="color:var(--primary-dark); margin-top: 0; margin-bottom: 5px;">Quick Review Note</h3>
         <div id="randomNoteContent" class="note-display-home">Loading clean points...</div>
@@ -214,6 +354,15 @@ body {
             <input type="text" id="quickNoteInput" placeholder="Type a clean fact to remember..." style="margin-bottom: 0;">
             <button class="btn" onclick="saveQuickNote()" style="white-space: nowrap;">Save Point</button>
         </div>
+    </div>
+
+    <!-- GLOBAL SEARCH DIRECT DISPLAY ON HOME PAGE -->
+    <div class="card" style="background: rgba(34, 197, 94, 0.05); border: 1px solid var(--border);">
+        <h4 style="margin-top: 0; margin-bottom: 8px; color: var(--success);">🔍 Instant Direct Global Search MCQ's</h4>
+        <div class="input-group" style="margin-bottom: 0;">
+            <input type="text" id="homeQuickSearchInput" placeholder="Type keyword (e.g. HOER, penalty, wages)..." style="margin-bottom:0;" oninput="triggerHomeQuickSearch(this.value)">
+        </div>
+        <div id="homeQuickSearchResults"></div>
     </div>
 
     <div class="dynamic-banner" id="mcqFactBanner">
@@ -233,26 +382,56 @@ body {
     </div>
   </div>
 
+  <!-- IMAGES TAB -->
   <div id="images" class="section">
     <div class="card">
         <h3>Cheat Sheet Images</h3>
-        <p style="font-size:0.9rem; color:var(--secondary); margin-bottom: 1rem;">Upload full-size images for quick visual review. Images save permanently.</p>
-        <input type="file" id="cheatInput" accept="image/*" multiple style="margin-bottom:1rem; width: 100%;" onchange="handleCheatInput(event)">
+        <p style="font-size:0.9rem; color:var(--secondary); margin-bottom: 1rem;">Click on the image below to open in full screen mode.</p>
         
-        <div class="carousel-container">
+        <div class="carousel-container" onclick="openImageModal()">
           <img id="carouselImg" src="" alt="Cheat Sheet Image" class="carousel-img" style="display:none">
-          <div id="carouselPlaceholder">No images uploaded.</div> 
-          <button class="carousel-ctrl c-prev" onclick="moveCarousel(-1)">&lt;</button>
-          <button class="carousel-ctrl c-next" onclick="moveCarousel(1)">&gt;</button>
+          <div id="carouselPlaceholder">No images uploaded. Add images in Data Management tab.</div> 
+          <button class="carousel-ctrl c-prev" onclick="event.stopPropagation(); moveCarousel(-1);">&lt;</button>
+          <button class="carousel-ctrl c-next" onclick="event.stopPropagation(); moveCarousel(1);">&gt;</button>
         </div>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
           <p id="carouselCounter" style="margin:0; color:var(--secondary); font-weight:bold; font-size:1.1rem;">0 / 0</p>
-          <button class="btn btn-danger btn-sm" id="deleteCurrentImgBtn" onclick="deleteCurrentCarouselImage()">Delete Current Image</button>
         </div>
     </div>
   </div>
 
+  <!-- SYLLABUS TAB -->
+  <div id="syllabus" class="section">
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <h3 style="margin:0;">📚 Syllabus Library</h3>
+        <div id="syllabusTreeButtonsContainer" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+    </div>
+    <div class="card">
+        <p style="font-size:0.85rem; color:var(--secondary); margin-bottom:1rem;">All active custom and default syllabus trees appended in the app.</p>
+        <div id="syllabusTreeContainer"></div>
+    </div>
+  </div>
+
+  <!-- BOOKMARKS TAB -->
+  <div id="bookmarks" class="section">
+    <div class="card">
+      <h3>★ Bookmarked Important MCQ's</h3>
+      <p style="font-size:0.9rem; color:var(--secondary);">Review questions you flagged as important for your exam preparation.</p>
+    </div>
+    <div id="bookmarkContainer"></div>
+  </div>
+
+  <!-- VIEW MCQ TAB -->
+  <div id="view" class="section">
+    <div class="card">
+      <h3>View Questions (Read Only)</h3>
+      <select id="viewTopicSelect" onchange="renderViewMode()"></select>
+    </div>
+    <div id="viewContainer"></div>
+  </div>
+
+  <!-- SEARCH TAB -->
   <div id="search" class="section">
     <div class="card">
       <h3>Global MCQ Search</h3>
@@ -264,43 +443,35 @@ body {
     <div id="searchContainer"></div>
   </div>
 
-  <div id="bookmarks" class="section">
-    <div class="card">
-      <h3>Bookmarked Questions</h3>
-      <p style="font-size:0.9rem; color:var(--secondary);">Review questions you flagged for extra study.</p>
-    </div>
-    <div id="bookmarkContainer"></div>
-  </div>
-
-  <div id="view" class="section">
-    <div class="card">
-      <h3>View Questions (Read Only)</h3>
-      <select id="viewTopicSelect" onchange="renderViewMode()"></select>
-    </div>
-    <div id="viewContainer"></div>
-  </div>
-
+  <!-- QUIZ TAB -->
   <div id="quiz" class="section">
     <div class="card">
       <h3>Quiz Mode & Exam History</h3>
       <div class="quiz-controls">
         <select id="quizTypeSelect" onchange="toggleQuizSettings()">
-            <option value="practice">Practice Mode (Instant Feedback)</option>
-            <option value="apo">APO Exam Mode (110 Qs, Submit at End)</option>
+            <option value="practice">Basic Practice Mode (Instant Feedback)</option>
+            <option value="exam">Exam Type MCQ Quiz (Exam Timer)</option>
+        </select>
+        <select id="quizSubtypeSelect" style="display:none;" onchange="toggleExamSubtype()">
+            <option value="apo30">APO 30% LDCE Exam (60 Mins Timer)</option>
+            <option value="apo70">APO 70% LDCE Exam (110 Mins Timer)</option>
         </select>
         <select id="quizTopicSelect" onchange="resetQuizMode()"></select>
+        
+        <!-- TIMER TOGGLE SETTING -->
+        <select id="practiceTimerToggle">
+            <option value="on">⏱️ Practice Timer: ON</option>
+            <option value="off">⏱️ Practice Timer: OFF</option>
+        </select>
+
         <select id="quizSizeSelect">
             <option value="10">10 Questions</option>
             <option value="20">20 Questions</option>
             <option value="50">50 Questions</option>
-            <option value="all">All Questions</option>
-        </select>
-        <select id="quizTimerSelect">
-            <option value="none">No Timer</option>
-            <option value="300">5 Minutes</option>
-            <option value="600">10 Minutes</option>
-            <option value="1800">30 Minutes</option>
-            <option value="6600">110 Minutes (Exam Standard)</option>
+            <option value="100">100 Questions</option>
+            <option value="110">110 Questions</option>
+            <option value="175">175 Questions</option>
+            <option value="all">All MCQ's</option>
         </select>
         <button class="btn" onclick="renderQuizMode()">Start Quiz</button>
         <button class="btn btn-secondary" onclick="toggleExamHistory()">Toggle Exam History</button>
@@ -308,7 +479,7 @@ body {
     </div>
     
     <div id="examHistoryContainer" class="card" style="display:none; background:var(--bg);">
-        <h4 style="margin-top:0;">Past APO Exams</h4>
+        <h4 style="margin-top:0;">Past Exams</h4>
         <div id="examHistoryList"></div>
     </div>
 
@@ -319,10 +490,11 @@ body {
     <div id="quizContainer"></div>
     
     <div style="text-align:center; margin-top:20px;">
-        <button id="submitExamBtn" class="btn" style="display:none; padding:1rem 3rem; font-size:1.2rem; background:var(--success);" onclick="submitExam()">Submit Exam</button>
+        <button id="submitExamBtn" class="btn" style="display:none;" onclick="submitExam()">Submit Exam</button>
     </div>
   </div>
   
+  <!-- NOTES TAB -->
   <div id="notes" class="section">
     <div class="card">
       <h3>Saved Notes & PDFs Viewer</h3>
@@ -332,6 +504,7 @@ body {
     </div>
   </div>
 
+  <!-- PAPERS TAB -->
   <div id="papers" class="section">
     <div class="card">
       <h3>Previous Papers Viewer</h3>
@@ -343,7 +516,7 @@ body {
         <h4 id="paperTitleViewer" style="margin:0">Paper View</h4>
         <button class="btn btn-secondary btn-sm" onclick="document.getElementById('paperViewer').style.display='none'">Close</button>
       </div>
-      <div id="pdfRenderer" class="pdf-viewer-container"></div>
+      <div id="pdfRenderer" class="pdf-viewer-container" onclick="openFullscreenPdf('pdfRenderer')"></div>
     </div>
   </div>
 
@@ -351,8 +524,20 @@ body {
   <div id="backup" class="section">
     <div class="card">
       <h2>Data Management Hub</h2>
-      <p style="color:var(--secondary)">Backup your data or restore from your large JSON dataset files. All creation, addition, and deletion tools are consolidated here.</p>
+      <p style="color:var(--secondary)">Consolidated tools for adding new syllabus trees, PDFs, Notes, MCQs (with Manual Topic or Parse & Distribute), Cheat Sheet Images, and password-protected deletions.</p>
       
+      <!-- SECURITY SETTINGS -->
+      <hr style="border-color: var(--border); margin: 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">🔒 App Security Password Setup</h3>
+      <p style="font-size:0.85rem; color:var(--secondary); margin-bottom:10px;">Set a custom password required when opening the app and when deleting any material.</p>
+      <div class="input-group">
+          <input type="password" id="newAppPassword" placeholder="Enter new app password...">
+          <button class="btn" onclick="saveAppPassword()">Update Password</button>
+      </div>
+
+      <!-- SYSTEM BACKUP & RESTORE -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">📦 System Backup & Restore</h3>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin: 1rem 0;">
         <button class="btn" onclick="backupAllData()">Download Backup File</button>
         <label class="btn btn-secondary" style="margin:0;">
@@ -362,18 +547,38 @@ body {
       </div>
       <p id="backupStatus" style="font-size:0.9rem; color:var(--secondary); margin-bottom:1rem;">Ready for import.</p>
       
+      <!-- ADD SYLLABUS TREE OPTION -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">📚 Add New Syllabus (Jr. Clerk, Sr. Clerk, OS, APO, etc.)</h3>
+      <p style="font-size:0.85rem; color:var(--secondary); margin-bottom:10px;">Add a new master category and its subfolders to the app syllabus tree.</p>
+      <label>Main Category Name (e.g., Jr. Clerk Exam Syllabus)</label>
+      <input id="newSyllabusCatName" placeholder="Main Category / Exam Name">
+      <label>Subfolders / Topics (Comma separated)</label>
+      <textarea id="newSyllabusSubTopics" rows="3" placeholder="General English, Arithmetic, Establishment Rules, Financial Rules"></textarea>
+      <button class="btn" onclick="addNewSyllabusCategory()">Append New Syllabus Tree</button>
+
+      <!-- ADD IMAGES SECTION -->
+      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">🖼️ Add Cheat Sheet Images</h3>
+      <p style="font-size:0.85rem; color:var(--secondary); margin-bottom:10px;">Upload full-size images for quick visual review. Images save permanently.</p>
+      <input type="file" id="cheatInput" accept="image/*" multiple style="margin-bottom:1rem; width: 100%;" onchange="handleCheatInput(event)">
+
       <!-- ADD MCQS SECTION -->
       <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
-      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">Add & Append MCQs</h3>
-      <label>Select Existing Topic or Type New Topic</label>
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">📥 Add & Parse/Distribute MCQs</h3>
+      <p style="font-size:0.85rem; color:var(--secondary); margin-bottom:10px;">Select a syllabus topic, type a custom topic manually, or click <strong>"Parse & Distribute"</strong> for automatic routing. Unmatched questions go to <em>"General / Unclassified MCQs"</em>.</p>
+      
+      <label>Select Syllabus Topic (Includes Added Topics)</label>
       <div class="input-group" style="margin-bottom:1rem;">
-        <select id="existingTopicSelect" onchange="document.getElementById('addTopic').value = this.value;">
-          <option value="">-- Choose Existing Topic (Optional) --</option>
+        <select id="syllabusDropdownSelect">
+          <option value="">-- Choose Syllabus Topic (Auto-Distribute if empty) --</option>
         </select>
       </div>
-      <input id="addTopic" placeholder="Or Type New Topic Name">
 
-      <label>Extract MCQs from PDF / Word / Image</label>
+      <label>Or Type Custom Topic Name Manually</label>
+      <input id="manualCustomTopicInput" placeholder="Type specific topic name manually...">
+
+      <label>Extract MCQs from PDF / Word / Image / Question Papers</label>
       <input type="file" id="mcqExtractFile" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1rem;">
         <button class="btn btn-secondary" onclick="extractMCQsFromFile()">Extract to Text Box</button>
@@ -384,67 +589,70 @@ body {
       <div style="background: var(--bg); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px dashed var(--border);">
           <label style="display: flex; align-items: center; gap: 10px; margin-bottom:0;">
               <input type="checkbox" id="isQuestionPaper" onchange="document.getElementById('paperNameContainer').style.display = this.checked ? 'block' : 'none'"> 
-              <strong>Extracted from a Question Paper</strong>
+              <strong>Uploaded Question Paper</strong>
           </label>
           <div id="paperNameContainer" style="display:none; margin-top: 10px;">
-              <input type="text" id="qpName" placeholder="Paper Name / Year (e.g., APO LDCE 30% 2021)">
-              <p style="font-size:0.8rem; color:var(--secondary); margin:0;">If checked, duplicates won't be deleted. Instead, existing MCQs will be tagged with this paper name.</p>
+              <input type="text" id="qpName" placeholder="Paper Name / Year (e.g., Jr. Clerk LDCE 2024)">
+              <p style="font-size:0.8rem; color:var(--secondary); margin:0;">Duplicates across the entire library will be checked and kept/tagged if it's a question paper.</p>
           </div>
       </div>
 
       <label>Paste or Review Extracted Content</label>
-      <textarea id="addText" rows="10" placeholder="1. What is meant by Intensive employment?&#10;&#10;A) Excluded&#10;B) Continuous&#10;C) Essentially Intermittent&#10;D) Intensive&#10;Ans: D&#10;Note: Explanation..."></textarea>
-      <button class="btn" onclick="parseAndSaveMCQs()">Save & Append MCQs</button>
+      <textarea id="addText" rows="10" placeholder="Q1. Full Form of RDAT&#10;a) Regional Directorate of Apprenticeship Training&#10;b) Rational Directorate of Apprentice Training&#10;c) Regular Directorate of Apprentice Training&#10;d) Regional Directorate of Apprentice Training.&#10;ANSWER : a"></textarea>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" onclick="parseAndDistributeMCQs()">⚡ Parse & Distribute</button>
+          <button class="btn btn-secondary" onclick="appendMCQsToSelectedTopic()">📁 Append to Selected Topic</button>
+      </div>
 
       <!-- ADD NOTES SECTION -->
       <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
-      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">Add Notes & PDFs</h3>
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">📝 Add Notes & PDFs</h3>
       <label>Topic Name</label>
       <input id="noteTopic" placeholder="Topic">
       <label>Text Notes (Saved as clean bullet points)</label>
       <textarea id="noteText" rows="4" placeholder="Type points here. Headings and bold tags will be stripped automatically..."></textarea>
-      <label>Upload PDF Note</label>
-      <input type="file" id="notePdf" accept="application/pdf">
-      <button class="btn" onclick="saveNote()">Save Note</button>
+      <label>Upload Multiple PDF Notes (File names will be used as Topic Names automatically)</label>
+      <input type="file" id="notePdf" accept="application/pdf" multiple onchange="saveMultipleNotePdfs(event)">
+      <button class="btn" onclick="saveNote()">Save Text Note</button>
 
       <!-- ADD PREVIOUS PAPERS SECTION -->
       <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
-      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">Upload Previous Paper PDF</h3>
+      <h3 style="color:var(--primary); margin-bottom: 0.5rem;">📄 Upload Previous Paper PDF</h3>
       <label>Paper Name/Year</label>
       <input id="paperName" placeholder="Paper Name">
       <label>Upload PDF</label>
       <input type="file" id="paperPdf" accept="application/pdf">
       <button class="btn" onclick="savePaper()">Upload Paper</button>
 
-      <!-- DELETION CENTER SECTION -->
-      <hr style="border-color: var(--border); margin: 30px 0 20px 0;">
-      <h3 style="color:var(--danger); margin-bottom: 0.5rem;">Data Deletion Center</h3>
-      <p style="color:var(--secondary); font-size:0.9rem;">**WARNING:** Deletion is permanent and cannot be undone.</p>
+      <!-- DELETION CENTER SECTION (PASSWORD PROTECTED) -->
+      <hr style="border-color: var(--border); margin: 40px 0 20px 0;">
+      <h3 style="color:var(--danger); margin-bottom: 0.5rem;">🗑️ Data Deletion Center (Password Protected)</h3>
+      <p style="color:var(--secondary); font-size:0.9rem;">Deleting any material requires entering your app password for security.</p>
       
       <hr style="border-color: var(--border);">
       <h4 style="margin-bottom: 0.5rem;">Delete Complete MCQ Topic</h4>
       <div class="input-group">
         <select id="deleteMcqSelect" onchange="populateSpecificMcqDropdown()"></select>
-        <button class="btn btn-danger" onclick="deleteCurrentTopic()">Delete Topic</button>
+        <button class="btn btn-danger" onclick="promptDelete('topic')">Delete Topic</button>
       </div>
 
       <h4 style="margin-bottom: 0.5rem; margin-top:1rem;">Delete Specific Incorrect/Unwanted Question</h4>
       <div class="input-group">
         <select id="deleteSpecificMcqSelect"></select>
-        <button class="btn btn-danger" onclick="deleteSpecificQuestion()">Delete Question</button>
+        <button class="btn btn-danger" onclick="promptDelete('question')">Delete Question</button>
       </div>
       
       <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--border);">
       <h4 style="margin-bottom: 0.5rem;">Delete Text/PDF Note</h4>
       <div class="input-group">
         <select id="deleteNoteSelect"></select>
-        <button class="btn btn-danger" onclick="deleteCurrentNote()">Delete Note</button>
+        <button class="btn btn-danger" onclick="promptDelete('note')">Delete Note</button>
       </div>
 
       <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--border);">
-      <h4 style="margin-bottom: 0.5rem;">Delete Carousel Images</h4>
-      <p style="font-size: 0.8rem; color: var(--secondary); margin-top:0;">Wipe all full-size cheat sheet images.</p>
-      <button class="btn btn-danger" onclick="clearCarouselImages()">Delete All Images</button>
+      <h4 style="margin-bottom: 0.5rem;">Delete Images (Cheat Sheets)</h4>
+      <p style="font-size: 0.8rem; color: var(--secondary); margin-top:0;">Wipe all uploaded full-size cheat sheet images.</p>
+      <button class="btn btn-danger" onclick="promptDelete('all_images')">Delete All Images</button>
 
       <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--border);">
       <h4 style="margin-bottom: 0.5rem;">Delete Previous Paper</h4>
@@ -452,27 +660,179 @@ body {
     </div>
   </div>
 
+  <div style="text-align:center; padding: 2rem 0; color:var(--secondary); font-size:0.8rem;">
+      Srikanth Learning App • Optimized for Offline Study & Exams v3.0
+  </div>
+
 </div>
 
+<!-- JUMP TO TOP FLOATING BUTTON -->
+<button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="display:none; position:fixed; bottom:20px; left:20px; z-index:998; background:var(--primary); color:white; border:none; border-radius:50%; width:45px; height:45px; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); align-items:center; justify-content:center;">↑</button>
+
 <script>
-// --- DEFAULT SEED DATA FOR AUTO-RESTORATION ON BUILD ---
+window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollToTopBtn');
+    if(btn) {
+        btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+    }
+});
+
+// --- MASTER SYLLABUS TREES LIBRARY ---
+let MASTER_SYLLABUS_COLLECTION = JSON.parse(localStorage.getItem("master_syllabus_collection") || JSON.stringify({
+    "APO LDCE (30% & 70%)": {
+        "1. Role of Personnel Department & Statutory Framework": [
+            "1.1 Organization, objectives & functions of Personnel Dept",
+            "1.2 Human resources role, reforms & developments in IR",
+            "1.3 Indian Railways Act, Establishment Codes & Manuals"
+        ],
+        "2. Recruitment & Selection Framework": [
+            "2.1 Classification of Services & Categories",
+            "2.2 General qualifications, appointment rules & medical fitness",
+            "2.3 Safety, Non-safety & Essential Categories",
+            "2.4 Compassionate, Sports, Cultural, Scouts & Guides Quotas",
+            "2.5 Substitutes, Contractual & Casual Labour",
+            "2.6 RRBs & RRCs",
+            "2.7 Reservation in Recruitment"
+        ],
+        "3. General Conditions of Service": [
+            "3.1 Appointment, Seniority & Lien",
+            "3.2 Pay Fixation Rules, Structure & Bills",
+            "3.3 Allowances (Running Staff), Advances & Recoveries",
+            "3.4 Promotions (AVCS, ACP, MACP, DACP)",
+            "3.5 Selection, Suitability and Trade Tests",
+            "3.6 Sealed Cover, Next Below Rule & Refusal of Promotion",
+            "3.7 Transfers (Inter-Railway & Inter-Divisional)",
+            "3.8 Deputation Rules",
+            "3.9 Leave Rules, Joining Time & Encashment",
+            "3.10 Pass Rules & AILTC",
+            "3.11 Reservation Policy & Rosters (SC, ST, OBC, PwBD, EWS)",
+            "3.12 HOER & Overtime",
+            "3.13 PME & Medical Decategorisation"
+        ],
+        "4. Human Resources Management & Manpower Planning": [
+            "4.1 Earnings, Staff Expenditure & Operating Ratio",
+            "4.2 Manpower Planning, Sanctions & Scale-Check",
+            "4.3 Post Management (Supernumerary, Surrender, Creation)",
+            "4.4 Work-Study, Job Analysis & Bench-Marking",
+            "4.5 Duty Rosters, Link Diagrams & Crew Links",
+            "4.6 Training (Initial, Refresher, CTIs, Plan Head 65)",
+            "4.7 Apprentices Act & Training Modules",
+            "4.8 Performance Appraisal (APARs, SPARROW, Mission Karmayogi)"
+        ],
+        "5. Industrial Relations & Labour Laws": [
+            "5.1 Trade Unions, PNMs, Staff Councils & PREM",
+            "5.2 JCM, Labour Tribunals & Commissioner",
+            "5.3 Industrial Disputes Act & IR Code 2020",
+            "5.4 Factories Act, Workmen's Compensation Act",
+            "5.5 Minimum Wages, Payment of Wages & Contract Labour Acts",
+            "5.6 Prevention of Sexual Harassment at Workplace (POSH)"
+        ],
+        "6. Staff Welfare & Amenities": [
+            "6.1 Staff Grievances Redressal (NIVARAN, CPGRAMS)",
+            "6.2 Staff Benefit Fund (SBF) & Scholarships",
+            "6.3 Railway Schools, Institutes, Holiday Camps & Co-operatives",
+            "6.4 Quarters (Types, Allotment & Retention Rules)"
+        ],
+        "7. Discipline & Appeal Rules": [
+            "7.1 Railway Services (Conduct) Rules, 1966",
+            "7.2 Railway Servants (D&A) Rules, 1968 & Standard Forms"
+        ],
+        "8. Final Settlement & Retirement Benefits": [
+            "8.1 Retirement Rules, Types & Benefits",
+            "8.2 Old & New Pension Schemes (NPS, UPS) & Qualifying Service",
+            "8.3 Family Pension, Provident Fund, Commutation & Gratuity",
+            "8.4 Pension Adalats, ARPAN & RELHS"
+        ],
+        "9. IT Application Platforms & Digital Governance": [
+            "9.1 HRMS, IPAS, e-Office, SPARROW, LIMBS, UMID, GeM"
+        ],
+        "10. Legal Representations & Right to Information": [
+            "10.1 Service Law & Handling Legal Cases (CAT/Courts)",
+            "10.2 RTI & CIC Matters"
+        ],
+        "11. Official Language Policy": [
+            "11.1 Official Languages Act & Rules (Regions A, B, C)"
+        ],
+        "12. Financial Rules & Budget Management": [
+            "12.1 Financial Rules, Budget, Tenders, Working Expenses, Accounts"
+        ]
+    }
+}));
+
+let activeSyllabusKey = localStorage.getItem("active_syllabus_key") || "APO LDCE (30% & 70%)";
+let APO_SYLLABUS_TREE = MASTER_SYLLABUS_COLLECTION[activeSyllabusKey] || MASTER_SYLLABUS_COLLECTION["APO LDCE (30% & 70%)"];
+
+function switchSyllabusTree(key) {
+    if (MASTER_SYLLABUS_COLLECTION[key]) {
+        activeSyllabusKey = key;
+        localStorage.setItem("active_syllabus_key", key);
+        APO_SYLLABUS_TREE = MASTER_SYLLABUS_COLLECTION[key];
+        renderSyllabusTree();
+        populateSyllabusDropdown();
+        renderSyllabusTreeButtons();
+        showToast(`Switched Syllabus to: ${key}`);
+    }
+}
+
+function renderSyllabusTreeButtons() {
+    const container = document.getElementById('syllabusTreeButtonsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.keys(MASTER_SYLLABUS_COLLECTION).forEach(key => {
+        const isActive = key === activeSyllabusKey;
+        const btn = document.createElement('button');
+        btn.className = `btn btn-sm ${isActive ? '' : 'btn-secondary'}`;
+        btn.textContent = key;
+        btn.onclick = () => switchSyllabusTree(key);
+        container.appendChild(btn);
+    });
+}
+
+function addNewSyllabusCategory() {
+    const syllabusName = document.getElementById('newSyllabusCatName').value.trim();
+    const subTopicsRaw = document.getElementById('newSyllabusSubTopics').value.trim();
+    
+    if (!syllabusName || !subTopicsRaw) {
+        return showToast("Please enter syllabus name and topics.");
+    }
+    
+    const subTopics = subTopicsRaw.split(',').map(s => s.trim()).filter(Boolean);
+    if (subTopics.length === 0) return showToast("Enter at least one valid subtopic.");
+    
+    if (!MASTER_SYLLABUS_COLLECTION[syllabusName]) {
+        MASTER_SYLLABUS_COLLECTION[syllabusName] = {};
+    }
+    
+    subTopics.forEach((st, idx) => {
+        MASTER_SYLLABUS_COLLECTION[syllabusName][`${idx + 1}. ${st}`] = [st];
+    });
+
+    localStorage.setItem("master_syllabus_collection", JSON.stringify(MASTER_SYLLABUS_COLLECTION));
+    
+    document.getElementById('newSyllabusCatName').value = '';
+    document.getElementById('newSyllabusSubTopics').value = '';
+    
+    switchSyllabusTree(syllabusName);
+    showToast(`New Syllabus Tree "${syllabusName}" Created & Appended!`);
+}
+
+// --- DEFAULT SEED DATA ---
 const DEFAULT_SEED_DATA = {
   "app": "Srikanth Learning App",
   "version": 1,
   "localStorage": {
     "mcq_data": JSON.stringify({
-      "HOER": [
-        {"q":"What is meant by “Intensive” employment of a railway servant?","o":["Excluded","Continuous","Essentially Intermittent","Intensive"],"a":3,"n":"Intensive work involves continuous concentration or hard manual labour with little or no relaxation."},
-        {"q":"Staff of railway schools imparting education are classified as:","o":["Continuous","Excluded","Essentially Intermittent","Intensive"],"a":1,"n":"Educational staff are excluded from HOER provisions."}
+      "7.2 Railway Servants (D&A) Rules, 1968 & Standard Forms": [
+        {"q":"Under which rule of RS(D&A) Rules 1968 is deemed suspension triggered upon arrest exceeding 48 hours?","o":["Rule 5(1)","Rule 5(2)","Rule 14(i)","Rule 20"],"a":1,"n":"Deemed suspension applies if detained in custody exceeding 48 hours."}
       ]
     }),
     "txt_notes": JSON.stringify({
-      "Railway Rules Quick Points": "• LND Salary & Refund: Paid at half pay like LHAP; if employee resigns without earning back LHAP credit, leave salary is refundable.\n• Casual Leave (CL) & Special Casual Leave (SCL): Handled under special service rules."
+      "Railway Rules Quick Points": "• LND Salary & Refund: Paid at half pay like LHAP; if employee resigns without earning back LHAP credit, leave salary is refundable."
     })
   }
 };
 
-// --- DB & STORAGE (Data Persistence) ---
+// --- DB & STORAGE ---
 const dbName = "McqAppDB";
 let db;
 const request = indexedDB.open(dbName, 1);
@@ -482,8 +842,47 @@ request.onupgradeneeded = e => {
 };
 request.onsuccess = e => { 
   db = e.target.result; 
-  initAutoRestore();
+  checkAppPassword();
 };
+
+function checkAppPassword() {
+    const savedPass = localStorage.getItem("app_password") || "1234";
+    const overlay = document.getElementById("passwordOverlay");
+    if (savedPass) {
+        overlay.style.display = "flex";
+    } else {
+        overlay.style.display = "none";
+        initAutoRestore();
+    }
+}
+
+function verifyAppPassword() {
+    const entered = document.getElementById("appPasswordInput").value;
+    const savedPass = localStorage.getItem("app_password") || "1234";
+    if (entered === savedPass) {
+        document.getElementById("passwordOverlay").style.display = "none";
+        initAutoRestore();
+        showToast("App Unlocked");
+    } else {
+        showToast("Incorrect Password!");
+        document.getElementById("appPasswordInput").value = "";
+    }
+}
+
+function resetAppEmergency() {
+    if (confirm("Resetting app data will restore default settings. Continue?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+function saveAppPassword() {
+    const newPass = document.getElementById("newAppPassword").value.trim();
+    if (!newPass) return showToast("Enter a valid password");
+    localStorage.setItem("app_password", newPass);
+    document.getElementById("newAppPassword").value = "";
+    showToast("App Password Updated Successfully!");
+}
 
 function initAutoRestore() {
     if (!localStorage.getItem("mcq_data") || Object.keys(getMCQs()).length === 0) {
@@ -504,6 +903,10 @@ function initAutoRestore() {
     renderExamHistory(); 
     initTheme();
     renderBookmarks();
+    renderDashboardMetrics();
+    renderSyllabusTree();
+    populateSyllabusDropdown();
+    renderSyllabusTreeButtons();
 }
 
 function saveFile(id, blob, meta) {
@@ -512,7 +915,7 @@ function saveFile(id, blob, meta) {
     const store = transaction.objectStore("pdfs");
     const request = store.put({ id, blob, meta });
     request.onsuccess = () => resolve(); request.onerror = (e) => reject(e);
-    transaction.oncomplete = () => showToast("Saved");
+    transaction.oncomplete = () => {};
   });
 }
 function getFile(id, cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").get(id).onsuccess = e => cb(e.target.result); }
@@ -542,7 +945,7 @@ function deleteFile(id) {
     });
 }
 
-// --- THEME MANAGEMENT (Dark Mode) ---
+// --- THEME MANAGEMENT ---
 function initTheme() {
     const isDark = localStorage.getItem("dark_mode") === "true";
     if (isDark) {
@@ -564,7 +967,7 @@ function toggleDarkMode() {
     showToast("Theme Updated");
 }
 
-// --- NAVIGATION & UTILS ---
+// --- NAVIGATION ---
 function switchTab(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -573,10 +976,15 @@ function switchTab(id) {
   if(targetButton) targetButton.classList.add('active');
   if(id === 'backup') updateDeleteSelects(); 
   if(id === 'bookmarks') renderBookmarks();
+  if(id === 'syllabus') { renderSyllabusTree(); renderSyllabusTreeButtons(); }
+  if(id === 'notes') { loadSavedNotesList(); }
+  if(id === 'home') { renderDashboardMetrics(); renderSyllabusTree(); }
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
+  t.innerHTML = msg.replace(/\n/g, '<br>'); 
+  t.classList.add('show'); 
+  setTimeout(() => t.classList.remove('show'), 4000);
 }
 function setBackupStatus(msg) { const el = document.getElementById('backupStatus'); if (el) el.textContent = msg; }
 function blobToDataUrl(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); }); }
@@ -597,7 +1005,12 @@ async function createBackupData() {
       mcq_data: localStorage.getItem("mcq_data") || "{}", 
       txt_notes: localStorage.getItem("txt_notes") || "{}" , 
       exam_history: localStorage.getItem("exam_history") || "[]",
-      bookmarks: localStorage.getItem("bookmarks") || "[]"
+      bookmarks: localStorage.getItem("bookmarks") || "[]",
+      answered_questions: localStorage.getItem("answered_questions") || "[]",
+      app_password: localStorage.getItem("app_password") || "1234",
+      custom_syllabus_tree: localStorage.getItem("custom_syllabus_tree") || "",
+      master_syllabus_collection: localStorage.getItem("master_syllabus_collection") || "",
+      active_syllabus_key: localStorage.getItem("active_syllabus_key") || ""
     }, 
     indexedDbFiles: [] 
   };
@@ -617,44 +1030,37 @@ async function backupAllData() {
   } catch (err) { setBackupStatus("Backup failed."); showToast("Error"); }
 }
 
-// --- ROBUST FILE RESTORATION FOR LARGE JSON DATASETS ---
 async function restoreAllData(event) {
   const file = event.target.files[0]; if (!file) return;
-  setBackupStatus("Reading dataset file (11k+ records)...");
+  setBackupStatus("Reading dataset file...");
   
   const reader = new FileReader();
   reader.onload = async function(e) {
     try {
         const fileText = e.target.result;
-        let backup;
-        try {
-            backup = JSON.parse(fileText);
-        } catch(parseErr) {
-            throw new Error("Invalid JSON structure. Please verify file format.");
-        }
+        let backup = JSON.parse(fileText);
 
-        setBackupStatus("Parsing data sets...");
-        
         let mcqObj = {};
         let notesObj = {};
         let examHistObj = "[]";
         let bookmarksObj = "[]";
+        let answeredObj = "[]";
+        let appPass = "1234";
+        let custTree = "";
+        let masterColl = "";
+        let activeKey = "";
 
         if (backup.localStorage) {
-            if (backup.localStorage.mcq_data) {
-                mcqObj = typeof backup.localStorage.mcq_data === 'string' ? JSON.parse(backup.localStorage.mcq_data) : backup.localStorage.mcq_data;
-            }
-            if (backup.localStorage.txt_notes) {
-                notesObj = typeof backup.localStorage.txt_notes === 'string' ? JSON.parse(backup.localStorage.txt_notes) : backup.localStorage.txt_notes;
-            }
-            if (backup.localStorage.exam_history) {
-                examHistObj = typeof backup.localStorage.exam_history === 'string' ? backup.localStorage.exam_history : JSON.stringify(backup.localStorage.exam_history);
-            }
-            if (backup.localStorage.bookmarks) {
-                bookmarksObj = typeof backup.localStorage.bookmarks === 'string' ? backup.localStorage.bookmarks : JSON.stringify(backup.localStorage.bookmarks);
-            }
+            if (backup.localStorage.mcq_data) mcqObj = typeof backup.localStorage.mcq_data === 'string' ? JSON.parse(backup.localStorage.mcq_data) : backup.localStorage.mcq_data;
+            if (backup.localStorage.txt_notes) notesObj = typeof backup.localStorage.txt_notes === 'string' ? JSON.parse(backup.localStorage.txt_notes) : backup.localStorage.txt_notes;
+            if (backup.localStorage.exam_history) examHistObj = typeof backup.localStorage.exam_history === 'string' ? backup.localStorage.exam_history : JSON.stringify(backup.localStorage.exam_history);
+            if (backup.localStorage.bookmarks) bookmarksObj = typeof backup.localStorage.bookmarks === 'string' ? backup.localStorage.bookmarks : JSON.stringify(backup.localStorage.bookmarks);
+            if (backup.localStorage.answered_questions) answeredObj = typeof backup.localStorage.answered_questions === 'string' ? backup.localStorage.answered_questions : JSON.stringify(backup.localStorage.answered_questions);
+            if (backup.localStorage.app_password) appPass = backup.localStorage.app_password;
+            if (backup.localStorage.custom_syllabus_tree) custTree = backup.localStorage.custom_syllabus_tree;
+            if (backup.localStorage.master_syllabus_collection) masterColl = backup.localStorage.master_syllabus_collection;
+            if (backup.localStorage.active_syllabus_key) activeKey = backup.localStorage.active_syllabus_key;
         } else {
-            // Raw topic-mapped MCQ JSON files
             mcqObj = backup;
         }
 
@@ -662,6 +1068,11 @@ async function restoreAllData(event) {
         localStorage.setItem("txt_notes", JSON.stringify(notesObj));
         localStorage.setItem("exam_history", examHistObj);
         localStorage.setItem("bookmarks", bookmarksObj);
+        localStorage.setItem("answered_questions", answeredObj);
+        localStorage.setItem("app_password", appPass);
+        if(custTree) localStorage.setItem("custom_syllabus_tree", custTree);
+        if(masterColl) localStorage.setItem("master_syllabus_collection", masterColl);
+        if(activeKey) localStorage.setItem("active_syllabus_key", activeKey);
         
         await clearAllFiles();
         if (backup.indexedDbFiles && Array.isArray(backup.indexedDbFiles)) {
@@ -676,21 +1087,15 @@ async function restoreAllData(event) {
         showToast("All Data Imported Successfully!");
         setTimeout(() => location.reload(), 1200);
     } catch (err) { 
-        console.error(err);
         setBackupStatus("Restore failed: " + err.message); 
         showToast("Import Error"); 
     }
-  };
-  reader.onerror = function() {
-    setBackupStatus("Error reading file stream.");
-    showToast("Read Error");
   };
   reader.readAsText(file);
 }
 
 function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
-// --- STRICT CLEAN NOTES TEXT FORMATTING (OMITS HEADINGS/MARKDOWN) ---
 function cleanAndFormatNoteText(rawText) {
     if (!rawText) return "";
     const lines = rawText.split('\n');
@@ -705,7 +1110,220 @@ function cleanAndFormatNoteText(rawText) {
     return formattedLines.join('\n');
 }
 
-// --- BOOKMARKS LOGIC ---
+// --- DASHBOARD METRICS & SYLLABUS TREE ---
+function getAnsweredQuestions() { return JSON.parse(localStorage.getItem("answered_questions") || "[]"); }
+function markQuestionAnswered(topic, qIndex) {
+    let answered = getAnsweredQuestions();
+    const exists = answered.some(a => a.topic === topic && a.qIndex === qIndex);
+    if (!exists) {
+        answered.push({ topic, qIndex });
+        localStorage.setItem("answered_questions", JSON.stringify(answered));
+        renderDashboardMetrics();
+    }
+}
+
+function renderDashboardMetrics() {
+    const allData = getMCQs();
+    const answered = getAnsweredQuestions();
+    
+    let totalSubtopics = 0;
+    let coveredSubtopics = new Set();
+    
+    Object.values(APO_SYLLABUS_TREE).forEach(subList => {
+        subList.forEach(sub => {
+            totalSubtopics++;
+            if (allData[sub] && allData[sub].length > 0) {
+                coveredSubtopics.add(sub);
+            }
+        });
+    });
+    
+    Object.keys(allData).forEach(t => {
+        if (allData[t].length > 0) coveredSubtopics.add(t);
+    });
+
+    const coveredCount = coveredSubtopics.size;
+    const untouchedCount = Math.max(0, totalSubtopics - coveredCount);
+    const answeredCount = answered.length;
+
+    const elCovered = document.getElementById('dashCovered');
+    const elUntouched = document.getElementById('dashUntouched');
+    const elAnswered = document.getElementById('dashAnswered');
+
+    if(elCovered) elCovered.textContent = coveredCount;
+    if(elUntouched) elUntouched.textContent = untouchedCount;
+    if(elAnswered) elAnswered.textContent = answeredCount;
+}
+
+function renderSyllabusTree() {
+    const container = document.getElementById('syllabusTreeContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    const allData = getMCQs();
+
+    Object.entries(APO_SYLLABUS_TREE).forEach(([mainCat, subList]) => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'syllabus-category';
+        
+        let subHtml = '';
+        subList.forEach(sub => {
+            const count = (allData[sub] || []).length;
+            const badgeColor = count > 0 ? 'var(--success)' : 'var(--secondary)';
+            subHtml += `
+                <div class="syllabus-sub-item">
+                    <span>📁 ${sub}</span>
+                    <span style="font-weight:bold; color:${badgeColor};">${count} MCQs</span>
+                </div>
+            `;
+        });
+
+        catDiv.innerHTML = `
+            <div class="syllabus-cat-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'flex' : 'none'">
+                <span>📂 ${mainCat}</span>
+                <span>▼</span>
+            </div>
+            <div class="syllabus-sub-list" style="display:none;">
+                ${subHtml}
+            </div>
+        `;
+        container.appendChild(catDiv);
+    });
+}
+
+function populateSyllabusDropdown() {
+    const sel = document.getElementById('syllabusDropdownSelect');
+    if(!sel) return;
+    
+    let allSyllabusTopics = new Set();
+    Object.values(APO_SYLLABUS_TREE).forEach(subList => {
+        subList.forEach(sub => allSyllabusTopics.add(sub));
+    });
+    Object.keys(getMCQs()).forEach(t => allSyllabusTopics.add(t));
+
+    sel.innerHTML = '<option value="">-- Choose Syllabus Topic (Auto-Distribute if empty) --</option>';
+    
+    Object.entries(APO_SYLLABUS_TREE).forEach(([mainCat, subList]) => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = mainCat;
+        subList.forEach(sub => {
+            const opt = document.createElement('option');
+            opt.value = sub;
+            opt.textContent = sub;
+            optgroup.appendChild(opt);
+            allSyllabusTopics.delete(sub);
+        });
+        sel.appendChild(optgroup);
+    });
+
+    if (allSyllabusTopics.size > 0) {
+        const customGroup = document.createElement('optgroup');
+        customGroup.label = "Custom / Other Topics Added";
+        allSyllabusTopics.forEach(top => {
+            const opt = document.createElement('option');
+            opt.value = top;
+            opt.textContent = top;
+            customGroup.appendChild(opt);
+        });
+        sel.appendChild(customGroup);
+    }
+}
+
+// --- GLOBAL SEARCH ---
+function performGlobalSearch() {
+    const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+    const container = document.getElementById('searchContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    if (!query) return;
+
+    const allData = getMCQs();
+    let resultsCount = 0;
+
+    Object.keys(allData).forEach(topic => {
+        allData[topic].forEach((item, idx) => {
+            const matchQ = item.q && item.q.toLowerCase().includes(query);
+            const matchOpts = item.o && item.o.some(o => o.toLowerCase().includes(query));
+            const matchNote = item.n && item.n.toLowerCase().includes(query);
+
+            if (matchQ || matchOpts || matchNote) {
+                resultsCount++;
+                const bookmarks = getBookmarks();
+                const isBookmarked = bookmarks.some(b => b.topic === topic && b.qIndex === idx);
+                
+                const el = document.createElement('div'); el.className = 'mcq-card';
+                let optsHtml = ''; 
+                if (item.o) {
+                    item.o.forEach((opt, i) => { 
+                        const isAns = (i === item.a); 
+                        optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
+                    });
+                }
+                
+                el.innerHTML = `
+                    <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topic.replace(/'/g, "\\'")}', ${idx}); performGlobalSearch();">★</button>
+                    <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:5px;">Topic: ${topic}</div>
+                    <div class="mcq-q"><strong>Q. ${item.q}</strong></div>
+                    ${optsHtml}
+                    ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
+                `;
+                container.appendChild(el);
+            }
+        });
+    });
+
+    if (resultsCount === 0) {
+        container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No matching questions found.</p>`;
+    }
+}
+
+function triggerHomeQuickSearch(query) {
+    const container = document.getElementById('homeQuickSearchResults');
+    if(!container) return;
+    container.innerHTML = '';
+    query = query.trim().toLowerCase();
+    if (!query) return;
+
+    const allData = getMCQs();
+    let resultsCount = 0;
+
+    Object.keys(allData).forEach(topic => {
+        allData[topic].forEach((item, idx) => {
+            const matchQ = item.q && item.q.toLowerCase().includes(query);
+            const matchOpts = item.o && item.o.some(o => o.toLowerCase().includes(query));
+            const matchNote = item.n && item.n.toLowerCase().includes(query);
+
+            if (matchQ || matchOpts || matchNote) {
+                resultsCount++;
+                const bookmarks = getBookmarks();
+                const isBookmarked = bookmarks.some(b => b.topic === topic && b.qIndex === idx);
+                
+                const el = document.createElement('div'); el.className = 'mcq-card';
+                let optsHtml = ''; 
+                if (item.o) {
+                    item.o.forEach((opt, i) => { 
+                        const isAns = (i === item.a); 
+                        optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
+                    });
+                }
+                
+                el.innerHTML = `
+                    <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topic.replace(/'/g, "\\'")}', ${idx}); triggerHomeQuickSearch('${query.replace(/'/g, "\\'")}');">★</button>
+                    <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:5px;">Topic: ${topic}</div>
+                    <div class="mcq-q"><strong>Q. ${item.q}</strong></div>
+                    ${optsHtml}
+                    ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
+                `;
+                container.appendChild(el);
+            }
+        });
+    });
+
+    if (resultsCount === 0) {
+        container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No matching questions found.</p>`;
+    }
+}
+
+// --- BOOKMARKS ---
 function getBookmarks() { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); }
 function toggleBookmark(topic, qIndex) {
     let bookmarks = getBookmarks();
@@ -728,7 +1346,12 @@ function renderBookmarks() {
     const allData = getMCQs();
 
     if (bookmarks.length === 0) {
-        container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No bookmarks added yet. Click the star icon on any question to save it here.</p>`;
+        container.innerHTML = `
+            <div class="empty-state">
+                <span>⭐</span>
+                <strong>No Bookmarks Yet</strong>
+                <p style="font-size:0.85rem; margin-top:5px;">Click the star icon on any question during study or quizzes to save it here.</p>
+            </div>`;
         return;
     }
 
@@ -739,13 +1362,15 @@ function renderBookmarks() {
         
         const el = document.createElement('div'); el.className = 'mcq-card';
         let optsHtml = ''; 
-        item.o.forEach((opt, i) => { 
-            const isAns = (i === item.a); 
-            optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
-        });
+        if (item.o) {
+            item.o.forEach((opt, i) => { 
+                const isAns = (i === item.a); 
+                optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
+            });
+        }
         
         el.innerHTML = `
-            <button class="bookmark-btn bookmarked" onclick="toggleBookmark('${b.topic}', ${b.qIndex})">★</button>
+            <button class="bookmark-btn bookmarked" onclick="toggleBookmark('${b.topic.replace(/'/g, "\\'")}', ${b.qIndex})">★</button>
             <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:5px;">Topic: ${b.topic}</div>
             <div class="mcq-q"><strong>Q. ${item.q}</strong></div>
             ${optsHtml}
@@ -755,53 +1380,7 @@ function renderBookmarks() {
     });
 }
 
-// --- GLOBAL SEARCH LOGIC ---
-function performGlobalSearch() {
-    const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
-    const container = document.getElementById('searchContainer');
-    if(!container) return;
-    container.innerHTML = '';
-    if (!query) return;
-
-    const allData = getMCQs();
-    let resultsCount = 0;
-
-    Object.keys(allData).forEach(topic => {
-        allData[topic].forEach((item, idx) => {
-            const matchQ = item.q.toLowerCase().includes(query);
-            const matchOpts = item.o.some(o => o.toLowerCase().includes(query));
-            const matchNote = item.n && item.n.toLowerCase().includes(query);
-
-            if (matchQ || matchOpts || matchNote) {
-                resultsCount++;
-                const bookmarks = getBookmarks();
-                const isBookmarked = bookmarks.some(b => b.topic === topic && b.qIndex === idx);
-                
-                const el = document.createElement('div'); el.className = 'mcq-card';
-                let optsHtml = ''; 
-                item.o.forEach((opt, i) => { 
-                    const isAns = (i === item.a); 
-                    optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
-                });
-                
-                el.innerHTML = `
-                    <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topic}', ${idx}); performGlobalSearch();">★</button>
-                    <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:5px;">Topic: ${topic}</div>
-                    <div class="mcq-q"><strong>Q. ${item.q}</strong></div>
-                    ${optsHtml}
-                    ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
-                `;
-                container.appendChild(el);
-            }
-        });
-    });
-
-    if (resultsCount === 0) {
-        container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No matching questions found.</p>`;
-    }
-}
-
-// --- HOME PAGE & DYNAMIC BANNERS LOGIC ---
+// --- HOME PAGE BANNERS ---
 function getTextNotes() { return JSON.parse(localStorage.getItem("txt_notes") || "{}"); }
 function updateStats() {
     const data = getMCQs(); const keys = Object.keys(data); document.getElementById('statTopics').textContent = keys.length;
@@ -904,7 +1483,7 @@ function triggerInitialBanners() {
     setInterval(updateNoteSnippet, 25000);
 }
 
-// --- CAROUSEL LOGIC ---
+// --- CAROUSEL & FULLSCREEN IMAGE MODAL ---
 let cheatImages = []; let cheatIdx = 0;
 function loadSavedCarouselImages() {
     getAllFilesByPrefix("carousel_", (results) => {
@@ -939,72 +1518,97 @@ function handleCheatInput(e) {
             document.getElementById('cheatInput').value = ''; 
             cheatIdx = cheatImages.length - 1; 
             updateCarousel(); 
-            showToast("Images Saved"); 
+            showToast("Images Added Successfully"); 
         }
     };
     reader.readAsDataURL(f);
   });
 }
 
-async function deleteCurrentCarouselImage() {
-    if (cheatImages.length === 0) { showToast("No images to delete."); return; }
-    if (!confirm("Permanently delete this specific cheat sheet image?")) return;
+function openImageModal() {
+    if (cheatImages.length === 0) return;
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const downloadBtn = document.getElementById('downloadModalBtn');
     
-    const currentImg = cheatImages[cheatIdx];
-    await deleteFile(currentImg.id);
-    if(currentImg.url.startsWith('blob:')) URL.revokeObjectURL(currentImg.url);
-    
-    cheatImages.splice(cheatIdx, 1);
-    if (cheatIdx >= cheatImages.length) {
-        cheatIdx = Math.max(0, cheatImages.length - 1);
-    }
-    updateCarousel();
-    showToast("Image Deleted");
+    modal.style.display = 'flex';
+    modalImg.src = cheatImages[cheatIdx].url;
+    downloadBtn.href = cheatImages[cheatIdx].url;
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+function requestDeleteModalImage() {
+    promptDelete('modal_image');
 }
 
 async function clearCarouselImages() {
     if (cheatImages.length === 0) { showToast("No images to clear."); return; }
-    if (!confirm("Permanently delete ALL full-size cheat sheet images?")) return;
-    for (const img of cheatImages) await deleteFile(img.id);
-    cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
-    cheatImages = []; cheatIdx = 0; updateCarousel(); showToast("All Images Deleted");
+    promptDelete('all_images');
 }
 function moveCarousel(dir) { if (cheatImages.length <= 1) return; cheatIdx = (cheatIdx + dir + cheatImages.length) % cheatImages.length; updateCarousel(); }
 function updateCarousel() {
-  const imgEl = document.getElementById('carouselImg'); const placeholderEl = document.getElementById('carouselPlaceholder'); const counterEl = document.getElementById('carouselCounter'); const deleteBtn = document.getElementById('deleteCurrentImgBtn');
+  const imgEl = document.getElementById('carouselImg'); const placeholderEl = document.getElementById('carouselPlaceholder'); const counterEl = document.getElementById('carouselCounter');
   if(!imgEl) return;
   if (cheatImages.length > 0) {
       imgEl.src = cheatImages[cheatIdx].url; imgEl.style.display = 'block'; placeholderEl.style.display = 'none'; 
-      counterEl.textContent = `${cheatIdx + 1} / ${cheatImages.length} Saved Images`;
-      if(deleteBtn) deleteBtn.style.display = 'inline-flex';
+      counterEl.textContent = `${cheatIdx + 1} / ${cheatImages.length} Saved Images (Click to view fullscreen)`;
   } else {
       imgEl.src = ""; imgEl.style.display = 'none'; placeholderEl.style.display = 'block'; counterEl.textContent = `0 / 0`;
-      if(deleteBtn) deleteBtn.style.display = 'none';
   }
 }
 
-// --- PDF & ADVANCED MCQS LOGIC ---
+// --- GLOBAL FULLSCREEN PDF VIEWER PIPELINE ---
+let activeFullscreenBlob = null;
+
 function renderPDF(blob, containerId) {
-  const container = document.getElementById(containerId); container.innerHTML = '<div style="color:white; padding-top:20px;">Loading PDF...</div>';
-  pdfjsLib.getDocument({url: URL.createObjectURL(blob)}).promise.then(pdf => {
+  const container = document.getElementById(containerId); 
+  if(!container) return;
+  container.innerHTML = '<div style="color:white; padding-top:20px;">Loading PDF...</div>';
+  
+  const url = URL.createObjectURL(blob);
+  pdfjsLib.getDocument({url: url}).promise.then(pdf => {
     container.innerHTML = '';
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       pdf.getPage(pageNum).then(page => {
-        const viewport = page.getViewport({scale: 1.5}); const canvas = document.createElement('canvas'); canvas.className = 'pdf-page-canvas';
-        canvas.height = viewport.height; canvas.width = viewport.width; container.appendChild(canvas);
-        page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport });
+        const viewport = page.getViewport({scale: 1.5}); 
+        const canvas = document.createElement('canvas'); 
+        canvas.className = 'pdf-page-canvas';
+        canvas.height = viewport.height; 
+        canvas.width = viewport.width; 
+        container.appendChild(canvas);
+        
+        const context = canvas.getContext('2d');
+        page.render({ canvasContext: context, viewport: viewport });
       });
     }
-  }).catch(err => { container.innerHTML = '<div style="color:#ffcccc">Error rendering PDF.</div>'; });
+  }).catch(err => { 
+    container.innerHTML = '<div style="color:#ffcccc">Error rendering PDF.</div>'; 
+  });
 }
+
+function openFullscreenPdf(sourceContainerId) {
+    if (!activeFullscreenBlob) return;
+    const modal = document.getElementById('pdfFullscreenModal');
+    const content = document.getElementById('fullscreenPdfContent');
+    modal.style.display = 'flex';
+    renderPDF(activeFullscreenBlob, 'fullscreenPdfContent');
+}
+
+function closePdfFullscreenModal() {
+    document.getElementById('pdfFullscreenModal').style.display = 'none';
+}
+
 function setExtractStatus(msg) { const el = document.getElementById('extractStatus'); if (el) el.textContent = msg; }
 
 function normalizeExtractedMCQText(text) {
   let raw = (text || '').replace(/\r/g, '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/[–—]/g, '-').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
   
   raw = raw.replace(/\s+(Q\s*(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?|(?:\b|^|\n)\(?\d+\)?\s*[\).:]\s+)/gi, '\n\n$1');
-  raw = raw.replace(/\s+((?:Choice\s*)?\(?[A-Ea-e]\)?\s*[\).:]\s+)/gi, '\n$1');
-  raw = raw.replace(/\s+((?:Ans|Answer)\s*[:.-]?\s*[A-Ea-e]\b)/gi, '\n$1');
+  raw = raw.replace(/\s+((?:\b[a-zA-Z0-9]\b|\(?[a-zA-Z0-9]\)?)\s*[\).:]\s+)/gi, '\n$1');
+  raw = raw.replace(/\s+((?:Ans|Answer|ANSWER)\s*[:.-]?\s*[A-Za-z0-9]\b)/gi, '\n$1');
   raw = raw.replace(/\s+((?:Note|Explanation)\s*[:.-]\s*)/gi, '\n$1');
 
   const lines = raw.split('\n').map(line => line.trim()).filter(Boolean);
@@ -1012,14 +1616,20 @@ function normalizeExtractedMCQText(text) {
 
   function finishCurrent() {
     if (!current) return;
-    current.q = current.q.replace(/\s+/g, ' ').trim(); current.o = current.o.map(opt => (opt || '').replace(/\s+/g, ' ').trim()); current.n = (current.n || '').replace(/\s+/g, ' ').trim();
-    const usableOptions = current.o.filter(Boolean);
-    if (current.q && usableOptions.length >= 2) { current.o = usableOptions; questions.push(current); }
+    current.q = current.q.replace(/\s+/g, ' ').trim(); 
+    if (current.o) current.o = current.o.map(opt => (opt || '').replace(/\s+/g, ' ').trim()); 
+    current.n = (current.n || '').replace(/\s+/g, ' ').trim();
+    
+    const usableOptions = current.o ? current.o.filter(Boolean) : [];
+    if (current.q && usableOptions.length >= 2) { 
+        current.o = usableOptions; 
+        questions.push(current); 
+    }
   }
 
   const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]?\s*(.+)?$/i;
-  const optMatchRegex = /^(?:Choice\s*)?\(?([A-E])\)?\s*[\).:]\s*(.+)$/i;
-  const ansMatchRegex = /^(?:Ans|Answer)\s*[:.-]?\s*([A-E])\b/i;
+  const optMatchRegex = /^(?:\(?([a-zA-Z0-9])\)?)\s*[\).:]\s*(.+)$/;
+  const ansMatchRegex = /^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*([a-zA-Z0-9])\b/i;
   const noteMatchRegex = /^(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
 
   for (const originalLine of lines) {
@@ -1034,13 +1644,30 @@ function normalizeExtractedMCQText(text) {
     }
     
     const optMatch = line.match(optMatchRegex);
-    if (optMatch) { const idx = optMatch[1].toUpperCase().charCodeAt(0) - 65; current.o[idx] = optMatch[2].trim(); lastField = `o${idx}`; continue; }
+    if (optMatch) { 
+        let token = optMatch[1];
+        let idx = -1;
+        if (/^[a-zA-Z]$/.test(token)) {
+            idx = token.toUpperCase().charCodeAt(0) - 65;
+        } else if (/^\d+$/.test(token)) {
+            idx = parseInt(token) - 1;
+        }
+        if (idx >= 0) {
+            current.o[idx] = optMatch[2].trim(); 
+            lastField = `o${idx}`; 
+            continue; 
+        }
+    }
     
     const ansMatch = line.match(ansMatchRegex);
     if (ansMatch) {
-      current.a = ansMatch[1].toUpperCase().charCodeAt(0) - 65; lastField = 'a';
-      const rest = line.replace(/^(?:Ans|Answer)\s*[:.-]?\s*[A-Ea-e]\b\s*/i, '').trim();
-      if (/^(?:Note|Explanation)\s*[:.-]/i.test(rest)) { current.n = rest.replace(/^(?:Note|Explanation)\s*[:.-]\s*/i, '').trim(); lastField = 'n'; }
+      let ansToken = ansMatch[1];
+      if (/^[a-zA-Z]$/.test(ansToken)) {
+          current.a = ansToken.toUpperCase().charCodeAt(0) - 65;
+      } else if (/^\d+$/.test(ansToken)) {
+          current.a = parseInt(ansToken) - 1;
+      }
+      lastField = 'a';
       continue;
     }
     
@@ -1055,11 +1682,15 @@ function normalizeExtractedMCQText(text) {
   
   return questions.map((q, index) => {
     const parts = [`Q${index + 1}. ${q.q}`, ''];
-    q.o.forEach((opt, optIndex) => { parts.push(`${String.fromCharCode(65 + optIndex)}) ${opt}`); });
-    if (q.a >= 0 && q.a < 26) parts.push(`Ans: ${String.fromCharCode(65 + q.a)}`); if (q.n) parts.push(`Note: ${q.n}`);
+    if (q.o) {
+        q.o.forEach((opt, optIndex) => { parts.push(`${String.fromCharCode(65 + optIndex)}) ${opt}`); });
+    }
+    if (q.a >= 0 && q.a < 26) parts.push(`Ans: ${String.fromCharCode(65 + q.a)}`); 
+    if (q.n) parts.push(`Note: ${q.n}`);
     return parts.join('\n');
   }).join('\n\n');
 }
+
 async function extractTextFromPdfFile(file) {
   const buffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
   const pages = [];
@@ -1096,74 +1727,356 @@ async function extractMCQsFromFile() {
     text = normalizeExtractedMCQText(text);
     if (!text) throw new Error('No readable text.');
     document.getElementById('addText').value = text;
-    if (!document.getElementById('addTopic').value.trim()) document.getElementById('addTopic').value = file.name.replace(/\.[^.]+$/, '').trim();
-    setExtractStatus(`Extracted text. Review, then click Save & Append MCQs.`); showToast('Text extracted');
+    setExtractStatus(`Extracted text. Review, then click Parse & Distribute.`); showToast('Text extracted');
   } catch (err) { setExtractStatus(err.message || 'Extract failed.'); showToast('Failed'); }
 }
 function formatPastedMCQs() {
   const area = document.getElementById('addText'); const cleaned = normalizeExtractedMCQText(area.value);
   if (!cleaned) { setExtractStatus('No valid MCQs detected.'); showToast('No MCQs'); return ''; }
-  area.value = cleaned; setExtractStatus(`Formatted MCQs. Click Save & Append MCQs.`); showToast(`Formatted`); return cleaned;
+  area.value = cleaned; setExtractStatus(`Formatted MCQs. Click Parse & Distribute.`); showToast(`Formatted`); return cleaned;
 }
 function clearExtractedMCQText() { document.getElementById('addText').value = ''; document.getElementById('mcqExtractFile').value = ''; setExtractStatus('Supported format: Q1, A), B), C), D), Ans:, Note:.'); }
 
 function getMCQs() { return JSON.parse(localStorage.getItem("mcq_data") || "{}"); }
-function saveMCQs(d) { localStorage.setItem("mcq_data", JSON.stringify(d)); updateSelects(); updateStats(); updateDeleteSelects(); populateExistingTopicDropdown(); }
+function saveMCQs(d) { localStorage.setItem("mcq_data", JSON.stringify(d)); updateSelects(); updateStats(); updateDeleteSelects(); renderDashboardMetrics(); renderSyllabusTree(); populateSyllabusDropdown(); }
 
-function parseAndSaveMCQs() {
-  const t = document.getElementById('addTopic').value.trim(); let txt = document.getElementById('addText').value;
-  if(!t || !txt) return showToast("Missing Topic or Content");
+// --- FIXED ROBUST TOPIC AUTO-ROUTING & SMART KEYWORD MATCHER ---
+function detectBestSyllabusTopic(questionText) {
+    const q = questionText.toLowerCase();
+    
+    let bestMatch = null;
+    let maxKeywordMatches = 0;
+
+    for (const [mainCat, subList] of Object.entries(APO_SYLLABUS_TREE)) {
+        for (const sub of subList) {
+            const cleanSub = sub.toLowerCase().replace(/[\d\.\,\&\(\)]/g, '');
+            const keywords = cleanSub.split(/\s+/).filter(w => w.length > 3);
+            
+            let matches = 0;
+            keywords.forEach(kw => {
+                if (q.includes(kw)) matches++;
+            });
+
+            if (matches > maxKeywordMatches) {
+                maxKeywordMatches = matches;
+                bestMatch = sub;
+            }
+        }
+    }
+
+    if (bestMatch && maxKeywordMatches > 0) return bestMatch;
+
+    if (q.includes('d&a') || q.includes('discipline') || q.includes('suspension') || q.includes('penalty') || q.includes('charge sheet') || q.includes('inquiry') || q.includes('rs(d&a)')) 
+        return "7.2 Railway Servants (D&A) Rules, 1968 & Standard Forms";
+    if (q.includes('rajbhasha') || q.includes('official language') || q.includes('region a') || q.includes('region b') || q.includes('region c') || q.includes('hindi') || q.includes('8th schedule')) 
+        return "11.1 Official Languages Act & Rules (Regions A, B, C)";
+    if (q.includes('pension') || q.includes('nps') || q.includes('ups') || q.includes('gratuity') || q.includes('commutation') || q.includes('relhs') || q.includes('pensioner')) 
+        return "8.2 Old & New Pension Schemes (NPS, UPS) & Qualifying Service";
+    if (q.includes('leave') || q.includes('lap') || q.includes('lhap') || q.includes('joining time') || q.includes('study leave') || q.includes('casual leave')) 
+        return "3.9 Leave Rules, Joining Time & Encashment";
+    if (q.includes('pass') || q.includes('pto') || q.includes('ailtc') || q.includes('school pass') || q.includes('complimentary pass')) 
+        return "3.10 Pass Rules & AILTC";
+    if (q.includes('hoer') || q.includes('intensive') || q.includes('continuous') || q.includes('intermittent') || q.includes('overtime') || q.includes('night duty')) 
+        return "3.12 HOER & Overtime";
+    if (q.includes('allowance') || q.includes('hra') || q.includes('ta/da') || q.includes('transport allowance') || q.includes('ctg') || q.includes('running allowance')) 
+        return "3.3 Allowances (Running Staff), Advances & Recoveries";
+    if (q.includes('selection') || q.includes('suitability') || q.includes('trade test') || q.includes('promotion') || q.includes('seniority') || q.includes('panel')) 
+        return "3.5 Selection, Suitability and Trade Tests";
+    if (q.includes('tender') || q.includes('budget') || q.includes('operating ratio') || q.includes('audit') || q.includes('financial') || q.includes('estimate') || q.includes('sop') || q.includes('wage') || q.includes('remuneration')) 
+        return "12.1 Financial Rules, Budget, Tenders, Working Expenses, Accounts";
+    if (q.includes('factory') || q.includes('industrial dispute') || q.includes('trade union') || q.includes('workmen') || q.includes('strike') || q.includes('compensation') || q.includes('wages act') || q.includes('minimum wages') || q.includes('claims') || q.includes('apprentice') || q.includes('ccaa') || q.includes('rdat')) 
+        return "5.3 Industrial Disputes Act & IR Code 2020";
+    if (q.includes('compassionate') || q.includes('sports quota') || q.includes('sbf') || q.includes('quarter') || q.includes('allotment')) 
+        return "2.4 Compassionate, Sports, Cultural, Scouts & Guides Quotas";
+    if (q.includes('hrms') || q.includes('ipas') || q.includes('e-office') || q.includes('sparrow') || q.includes('umid') || q.includes('nivaran')) 
+        return "9.1 IT Application Platforms & Digital Governance";
+
+    const allValidTopics = [];
+    Object.values(APO_SYLLABUS_TREE).forEach(subList => allValidTopics.push(...subList));
+    if (allValidTopics.length > 0) return allValidTopics[0];
+
+    return "General / Unclassified MCQs";
+}
+
+function isDuplicateAcrossGlobalLibrary(questionText, allData) {
+    const cleanQ = questionText.trim().toLowerCase().replace(/[\?\.\!]/g, '');
+    for (const topic of Object.keys(allData)) {
+        for (const item of allData[topic]) {
+            if (item.q && item.q.trim().toLowerCase().replace(/[\?\.\!]/g, '') === cleanQ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function parseAndDistributeMCQs() {
+  let txt = document.getElementById('addText').value;
+  if(!txt) return showToast("Missing MCQ Content");
   
+  const manualTopic = document.getElementById('syllabusDropdownSelect').value;
+  const customManualTopic = document.getElementById('manualCustomTopicInput').value.trim();
   const isQP = document.getElementById('isQuestionPaper').checked;
   const qpName = document.getElementById('qpName').value.trim();
   
-  const cleanedBeforeSave = normalizeExtractedMCQText(txt);
-  if (cleanedBeforeSave) { txt = cleanedBeforeSave; document.getElementById('addText').value = cleanedBeforeSave; }
+  let data = getMCQs();
   
-  let data = getMCQs(); if(!data[t]) data[t] = [];
+  const lines = txt.split(/\r?\n/);
+  let questions = []; 
+  let currentQ = null;
   
-  const preparedText = txt.replace(/\r/g, '')
-      .replace(/\s+(Q\s*(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?)/gi, '\n\n$1')
-      .replace(/\s+((?:Choice\s*)?[A-E]\s*[\).:]\s+)/gi, '\n$1')
-      .replace(/\s+((?:Ans|Answer)\s*[:.-]?\s*[A-E]\b)/gi, '\n$1')
-      .replace(/\s+((?:Note|Explanation)\s*[:.-]\s*)/gi, '\n$1');
-      
-  const lines = preparedText.split('\n'); let currentQ = null; let addedCount = 0; let dupCount = 0;
-  
-  const pushQuestion = () => {
+  const pushCurrent = () => {
       if (currentQ) {
-          const existingQ = data[t].find(existing => existing.q.trim().toLowerCase() === currentQ.q.trim().toLowerCase());
-          if (existingQ) { 
-              if(isQP && qpName) {
-                  const tag = `⭐ Repeated in: ${qpName}`;
-                  existingQ.n = existingQ.n ? existingQ.n + `<br>${tag}` : tag;
-                  dupCount++;
-              } else {
-                  dupCount++;
-              }
-          } else { 
-              data[t].push(currentQ); addedCount++; 
+          currentQ.q = currentQ.q.trim();
+          if (currentQ.o) currentQ.o = currentQ.o.map(o => o.trim()).filter(Boolean);
+          if (currentQ.q && currentQ.o && currentQ.o.length >= 2) {
+              questions.push(currentQ);
           }
       }
   };
 
-  const qStart = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?\s*/i; 
-  const optStart = /^(?:Choice\s*)?[A-E][\)\.:]\s*/i; 
-  const ansStart = /^(Ans|Answer)[\.:\-]?\s*/i; const noteStart = /^(Note|Explanation)[\.:\-]?\s*/i;
+  const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]\s*(.+)?$/i;
+  const optStartRegex = /^\s*(?:\(?([a-zA-Z0-9])\)?)\s*[\).:]\s*(.+)$/;
+  const ansStartRegex = /^\s*(?:Ans|Answer|ANSWER)\s*[:.-]?\s*([a-zA-Z0-9])\b/i;
+  const noteStartRegex = /^\s*(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
 
-  lines.forEach(line => {
-    line = line.trim(); if (!line) return;
-    if (qStart.test(line)) { pushQuestion(); currentQ = { q: line.replace(qStart, ''), o: [], a: -1, n: '' }; } 
-    else if (ansStart.test(line)) { if (currentQ) { let charCode = line.replace(ansStart, '').trim().toUpperCase().charCodeAt(0); if (charCode >= 65 && charCode <= 69) currentQ.a = charCode - 65; else currentQ.a = -1; } } 
-    else if (noteStart.test(line)) { if (currentQ) currentQ.n = line.replace(noteStart, '').trim(); } 
-    else if (optStart.test(line)) { if (currentQ) currentQ.o.push(line.replace(optStart, '').trim()); } 
-    else { if (currentQ) { if (currentQ.o.length === 0) currentQ.q += " " + line; else currentQ.o[currentQ.o.length - 1] += " " + line; } }
+  for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line) continue;
+
+      let qMatch = line.match(qStartRegex);
+      if (qMatch) {
+          pushCurrent();
+          currentQ = { q: qMatch[2] || '', o: [], a: -1, n: '' };
+          continue;
+      }
+
+      if (!currentQ) {
+          currentQ = { q: line, o: [], a: -1, n: '' };
+          continue;
+      }
+
+      let ansMatch = line.match(ansStartRegex);
+      if (ansMatch) {
+          let token = ansMatch[1].toUpperCase();
+          let charCode = token.charCodeAt(0);
+          if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
+          else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
+          continue;
+      }
+
+      let optMatch = line.match(optStartRegex);
+      if (optMatch) {
+          let token = optMatch[1].toUpperCase();
+          let idx = -1;
+          if (/^[A-Z]$/.test(token)) idx = token.charCodeAt(0) - 65;
+          else if (/^\d+$/.test(token)) idx = parseInt(token) - 1;
+
+          if (idx >= 0) {
+              currentQ.o[idx] = optMatch[2].trim();
+          } else {
+              currentQ.o.push(optMatch[2].trim());
+          }
+          continue;
+      }
+
+      let noteMatch = line.match(noteStartRegex);
+      if (noteMatch) {
+          currentQ.n = noteMatch[1].trim();
+          continue;
+      }
+
+      if (/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*[A-Za-z0-9]$/i.test(line) || /^[a-zA-Z0-9]$/.test(line)) {
+          let token = line.replace(/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*/i, '').trim().toUpperCase();
+          let charCode = token.charCodeAt(0);
+          if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
+          else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
+          continue;
+      }
+
+      if (currentQ.o.length === 0) {
+          currentQ.q += " " + line;
+      } else {
+          currentQ.o[currentQ.o.length - 1] += " " + line;
+      }
+  }
+  pushCurrent();
+
+  let addedCount = 0;
+  let dupCount = 0;
+  let parsedTopicCounts = {};
+
+  questions.forEach(q => {
+      const isGlobalDuplicate = isDuplicateAcrossGlobalLibrary(q.q, data);
+      
+      let targetTopic = "General / Unclassified MCQs";
+      if (customManualTopic) {
+          targetTopic = customManualTopic;
+      } else if (manualTopic) {
+          targetTopic = manualTopic;
+      } else {
+          targetTopic = detectBestSyllabusTopic(q.q);
+      }
+
+      if(!data[targetTopic]) data[targetTopic] = [];
+
+      if (isGlobalDuplicate) {
+          if (isQP && qpName) {
+              const tag = `⭐ Asked earlier in: ${qpName}`;
+              if (!q.n || !q.n.includes(qpName)) {
+                  q.n = q.n ? q.n + `<br>${tag}` : tag;
+              }
+              data[targetTopic].push(q);
+              dupCount++;
+              addedCount++;
+              parsedTopicCounts[targetTopic] = (parsedTopicCounts[targetTopic] || 0) + 1;
+          } else {
+              dupCount++;
+          }
+      } else {
+          data[targetTopic].push(q);
+          addedCount++;
+          parsedTopicCounts[targetTopic] = (parsedTopicCounts[targetTopic] || 0) + 1;
+      }
   });
-  pushQuestion();
   
-  saveMCQs(data); document.getElementById('addText').value = ''; document.getElementById('addTopic').value = '';
-  document.getElementById('existingTopicSelect').value = '';
-  showToast(`Saved & Appended ${addedCount} MCQs. (${dupCount} duplicates ${isQP ? 'tagged' : 'skipped'})`);
+  saveMCQs(data); 
+  document.getElementById('addText').value = '';
+  document.getElementById('manualCustomTopicInput').value = '';
+  document.getElementById('syllabusDropdownSelect').value = '';
+
+  let summaryMsg = `Parsed & Distributed ${addedCount} MCQs successfully! (${dupCount} duplicates checked)\n`;
+  for (const [top, cnt] of Object.entries(parsedTopicCounts)) {
+      summaryMsg += `• ${top}: ${cnt} MCQs\n`;
+  }
+  showToast(summaryMsg);
+}
+
+function appendMCQsToSelectedTopic() {
+    const manualTopic = document.getElementById('syllabusDropdownSelect').value;
+    const customManualTopic = document.getElementById('manualCustomTopicInput').value.trim();
+    
+    let targetTopic = customManualTopic || manualTopic;
+    if (!targetTopic) targetTopic = "General / Unclassified MCQs";
+    
+    let txt = document.getElementById('addText').value;
+    if(!txt) return showToast("Missing MCQ Content");
+    
+    const isQP = document.getElementById('isQuestionPaper').checked;
+    const qpName = document.getElementById('qpName').value.trim();
+    
+    let data = getMCQs();
+    if(!data[targetTopic]) data[targetTopic] = [];
+    
+    const lines = txt.split(/\r?\n/);
+    let questions = []; 
+    let currentQ = null;
+    
+    const pushCurrent = () => {
+        if (currentQ) {
+            currentQ.q = currentQ.q.trim();
+            if (currentQ.o) currentQ.o = currentQ.o.map(o => o.trim()).filter(Boolean);
+            if (currentQ.q && currentQ.o && currentQ.o.length >= 2) {
+                questions.push(currentQ);
+            }
+        }
+    };
+
+    const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]\s*(.+)?$/i;
+    const optStartRegex = /^\s*(?:\(?([a-zA-Z0-9])\)?)\s*[\).:]\s*(.+)$/;
+    const ansStartRegex = /^\s*(?:Ans|Answer|ANSWER)\s*[:.-]?\s*([a-zA-Z0-9])\b/i;
+    const noteStartRegex = /^\s*(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+
+        let qMatch = line.match(qStartRegex);
+        if (qMatch) {
+            pushCurrent();
+            currentQ = { q: qMatch[2] || '', o: [], a: -1, n: '' };
+            continue;
+        }
+
+        if (!currentQ) {
+            currentQ = { q: line, o: [], a: -1, n: '' };
+            continue;
+        }
+
+        let ansMatch = line.match(ansStartRegex);
+        if (ansMatch) {
+            let token = ansMatch[1].toUpperCase();
+            let charCode = token.charCodeAt(0);
+            if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
+            else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
+            continue;
+        }
+
+        let optMatch = line.match(optStartRegex);
+        if (optMatch) {
+            let token = optMatch[1].toUpperCase();
+            let idx = -1;
+            if (/^[A-Z]$/.test(token)) idx = token.charCodeAt(0) - 65;
+            else if (/^\d+$/.test(token)) idx = parseInt(token) - 1;
+
+            if (idx >= 0) {
+                currentQ.o[idx] = optMatch[2].trim();
+            } else {
+                currentQ.o.push(optMatch[2].trim());
+            }
+            continue;
+        }
+
+        let noteMatch = line.match(noteStartRegex);
+        if (noteMatch) {
+            currentQ.n = noteMatch[1].trim();
+            continue;
+        }
+
+        if (/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*[A-Za-z0-9]$/i.test(line) || /^[a-zA-Z0-9]$/.test(line)) {
+            let token = line.replace(/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*/i, '').trim().toUpperCase();
+            let charCode = token.charCodeAt(0);
+            if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
+            else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
+            continue;
+        }
+
+        if (currentQ.o.length === 0) {
+            currentQ.q += " " + line;
+        } else {
+            currentQ.o[currentQ.o.length - 1] += " " + line;
+        }
+    }
+    pushCurrent();
+
+    let addedCount = 0;
+    let dupCount = 0;
+
+    questions.forEach(q => {
+        const isGlobalDuplicate = isDuplicateAcrossGlobalLibrary(q.q, data);
+        if (isGlobalDuplicate) {
+            if (isQP && qpName) {
+                const tag = `⭐ Asked earlier in: ${qpName}`;
+                if (!q.n || !q.n.includes(qpName)) {
+                    q.n = q.n ? q.n + `<br>${tag}` : tag;
+                }
+                data[targetTopic].push(q);
+                dupCount++;
+                addedCount++;
+            } else {
+                dupCount++;
+            }
+        } else {
+            data[targetTopic].push(q);
+            addedCount++;
+        }
+    });
+    
+    saveMCQs(data);
+    document.getElementById('addText').value = '';
+    document.getElementById('manualCustomTopicInput').value = '';
+    document.getElementById('syllabusDropdownSelect').value = '';
+    showToast(`Appended ${addedCount} MCQs directly to "${targetTopic}". (${dupCount} duplicates checked)`);
 }
 
 function updateSelects() {
@@ -1174,23 +2087,13 @@ function updateSelects() {
     const currentVal = sel.value; sel.innerHTML = '<option value="">-- Select Topic --</option>';
     keys.forEach(t => { sel.innerHTML += `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t} (${data[t].length})</option>`; });
   });
-  populateExistingTopicDropdown();
-}
-
-function populateExistingTopicDropdown() {
-  const sel = document.getElementById('existingTopicSelect');
-  if(!sel) return;
-  const data = getMCQs();
-  const keys = Object.keys(data).sort();
-  const currentVal = sel.value;
-  sel.innerHTML = '<option value="">-- Choose Existing Topic (Optional) --</option>';
-  keys.forEach(t => {
-    sel.innerHTML += `<option value="${t}" ${t === currentVal ? 'selected' : ''}>${t} (${data[t].length} questions)</option>`;
-  });
+  updateDeleteSelects();
+  populateSyllabusDropdown();
 }
 
 function renderViewMode() {
-  const t = document.getElementById('viewTopicSelect').value; const container = document.getElementById('viewContainer'); 
+  const t = document.getElementById('viewTopicSelect').value; 
+  const container = document.getElementById('viewContainer'); 
   if(!container) return;
   container.innerHTML = '';
   if (!t) return;
@@ -1198,10 +2101,19 @@ function renderViewMode() {
   
   getMCQs()[t].forEach((item, idx) => {
     const isBookmarked = bookmarks.some(b => b.topic === t && b.qIndex === idx);
-    const el = document.createElement('div'); el.className = 'mcq-card';
-    let optsHtml = ''; item.o.forEach((opt, i) => { const isAns = (i === item.a); optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; });
+    const el = document.createElement('div'); 
+    el.className = 'mcq-card';
+    
+    let optsHtml = ''; 
+    if (item.o) {
+        item.o.forEach((opt, i) => { 
+            const isAns = (i === item.a); 
+            optsHtml += `<div class="mcq-opt ${isAns ? 'correct' : ''}">${String.fromCharCode(65+i)}) ${opt}</div>`; 
+        });
+    }
+    
     el.innerHTML = `
-      <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${t}', ${idx}); renderViewMode();">★</button>
+      <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${t.replace(/'/g, "\\'")}', ${idx}); renderViewMode();">★</button>
       <div class="mcq-q"><strong>Q${idx+1}. ${item.q}</strong></div>
       ${optsHtml}
       ${item.n ? `<div class="note-box">Note: ${item.n}</div>` : ''}
@@ -1210,23 +2122,37 @@ function renderViewMode() {
   });
 }
 
-// --- QUIZ, TIMER & EXAM MODE LOGIC ---
+// --- QUIZ & EXAM TIMERS ---
 let activeExamQuestions = [];
 let quizTimerInterval = null;
 let remainingSeconds = 0;
+let currentQuizTopicName = "";
 
 function toggleQuizSettings() {
     const type = document.getElementById('quizTypeSelect').value;
+    const subtypeSel = document.getElementById('quizSubtypeSelect');
     const topicSel = document.getElementById('quizTopicSelect');
     const sizeSel = document.getElementById('quizSizeSelect');
-    if (type === 'apo') {
-        topicSel.disabled = true; sizeSel.disabled = true;
-        document.getElementById('quizTimerSelect').value = '6600'; 
+    const timerToggleSel = document.getElementById('practiceTimerToggle');
+
+    if (type === 'exam') {
+        subtypeSel.style.display = 'block';
+        topicSel.style.display = 'none';
+        sizeSel.style.display = 'block';
+        timerToggleSel.style.display = 'none';
     } else {
-        topicSel.disabled = false; sizeSel.disabled = false;
+        subtypeSel.style.display = 'none';
+        topicSel.style.display = 'block';
+        sizeSel.style.display = 'block';
+        timerToggleSel.style.display = 'block';
     }
     resetQuizMode();
 }
+
+function toggleExamSubtype() {
+    resetQuizMode();
+}
+
 function resetQuizMode() { 
     const qc = document.getElementById('quizContainer');
     if(qc) qc.innerHTML = ''; 
@@ -1259,7 +2185,7 @@ function renderExamHistory() {
         div.innerHTML += `
         <div class="exam-history-item">
             <div>
-                <strong>Date:</strong> ${exam.date} <br>
+                <strong>Type:</strong> ${exam.type || 'Exam'} | <strong>Date:</strong> ${exam.date} <br>
                 <strong>Score:</strong> <span style="color:var(--success); font-weight:bold;">${exam.score} / ${exam.total}</span>
             </div>
             <button class="btn btn-secondary btn-sm" onclick="retakeExam(${exam.id})">Retake Exam</button>
@@ -1270,15 +2196,19 @@ function renderExamHistory() {
 function retakeExam(id) {
     const exam = getExamHistory().find(e => e.id === id);
     if (!exam) return;
-    document.getElementById('quizTypeSelect').value = 'apo';
+    document.getElementById('quizTypeSelect').value = 'exam';
+    document.getElementById('quizSubtypeSelect').style.display = 'block';
+    const is30 = exam.type.includes('30%');
+    document.getElementById('quizSubtypeSelect').value = is30 ? 'apo30' : 'apo70';
     toggleQuizSettings();
     activeExamQuestions = exam.questions; 
-    renderActiveExam();
+    renderActiveExam(exam.type, is30 ? 3600 : 6600);
     showToast(`Retaking exam from ${exam.date}`);
 }
 
 function renderQuizMode() {
   const type = document.getElementById('quizTypeSelect').value;
+  const subtype = document.getElementById('quizSubtypeSelect').value;
   const t = document.getElementById('quizTopicSelect').value;
   const size = document.getElementById('quizSizeSelect').value;
   resetQuizMode();
@@ -1286,30 +2216,36 @@ function renderQuizMode() {
   let questions = [];
   const allData = getMCQs();
 
-  if (type === 'apo') {
+  if (type === 'exam') {
       Object.values(allData).forEach(topicQs => questions.push(...topicQs));
       shuffleArray(questions);
-      activeExamQuestions = questions.slice(0, 110);
-      if(activeExamQuestions.length < 110 && activeExamQuestions.length > 0) showToast(`Only ${activeExamQuestions.length} total Qs found.`);
-      renderActiveExam();
+      
+      let limit = 110;
+      if (size !== 'all' && !isNaN(size)) limit = parseInt(size);
+      else if (size === 'all') limit = questions.length;
+
+      activeExamQuestions = questions.slice(0, limit);
+      
+      if (subtype === 'apo30') {
+          renderActiveExam("APO 30% LDCE Exam", 3600);
+      } else {
+          renderActiveExam("APO 70% LDCE Exam", 6600);
+      }
   } else {
       if(!t) return showToast("Select a topic.");
       const topicData = allData[t];
       if(!topicData || topicData.length === 0) return showToast("No questions in this topic.");
+      currentQuizTopicName = t;
       questions = [...topicData]; shuffleArray(questions); 
       let limit = size === 'all' ? questions.length : parseInt(size);
       questions = questions.slice(0, limit); 
       renderPracticeQuiz(questions, t);
   }
-  
-  startQuizTimer();
 }
 
-function startQuizTimer() {
-    const timerVal = document.getElementById('quizTimerSelect').value;
-    if(timerVal === 'none') return;
-    
-    remainingSeconds = parseInt(timerVal);
+function startQuizTimer(seconds) {
+    if(!seconds || seconds <= 0) return;
+    remainingSeconds = seconds;
     const timerDisplay = document.getElementById('quizTimerDisplay');
     const clock = document.getElementById('timerClock');
     timerDisplay.style.display = 'block';
@@ -1333,42 +2269,81 @@ function renderPracticeQuiz(questions, topicName) {
     if(!div || questions.length === 0) return showToast("No questions found.");
     const bookmarks = getBookmarks();
 
+    const timerToggleVal = document.getElementById('practiceTimerToggle').value;
+    if (timerToggleVal === 'on') {
+        startPracticeSessionTimer();
+    } else {
+        const qtd = document.getElementById('quizTimerDisplay');
+        if(qtd) qtd.style.display = 'none';
+    }
+
     questions.forEach((q, i) => {
         const isBookmarked = bookmarks.some(b => b.topic === topicName && b.qIndex === i);
-        div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}">
-          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topicName}', ${i})">★</button>
+        let optsHtml = '';
+        if (q.o) {
+            q.o.forEach((o,j) => {
+                optsHtml += `<div class="mcq-opt" onclick="check(this, ${j}, ${q.a}, '${topicName.replace(/'/g, "\\'")}', ${i})">${String.fromCharCode(65+j)}) ${o}</div>`;
+            });
+        }
+        div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}" data-topic="${topicName}" data-qindex="${i}">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topicName.replace(/'/g, "\\'")}', ${i})">★</button>
           <strong>Q${i+1}: ${q.q}</strong>
-          ${q.o.map((o,j) => `<div class="mcq-opt" onclick="check(this, ${j}, ${q.a})">${String.fromCharCode(65+j)}) ${o}</div>`).join('')}
+          ${optsHtml}
           ${q.n ? `<div class="note-box" id="note-${i}" style="display:none">Note: ${q.n}</div>` : ''}
         </div>`;
     });
     showToast(`Practice Quiz Started: ${questions.length} Qs.`);
 }
 
-function renderActiveExam() {
+function startPracticeSessionTimer() {
+    remainingSeconds = 900; 
+    const timerDisplay = document.getElementById('quizTimerDisplay');
+    const clock = document.getElementById('timerClock');
+    timerDisplay.style.display = 'block';
+    
+    if(quizTimerInterval) clearInterval(quizTimerInterval);
+    quizTimerInterval = setInterval(() => {
+        remainingSeconds--;
+        let m = Math.floor(remainingSeconds / 60);
+        let s = remainingSeconds % 60;
+        clock.textContent = `⏱️ Session Time: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        if (remainingSeconds <= 0) clearInterval(quizTimerInterval);
+    }, 1000);
+}
+
+function renderActiveExam(examTitle, durationSeconds) {
     const div = document.getElementById('quizContainer'); 
     if(!div || activeExamQuestions.length === 0) return showToast("No questions found.");
     const bookmarks = getBookmarks();
 
     activeExamQuestions.forEach((q, i) => {
         const isBookmarked = bookmarks.some(b => b.topic === "APO Exam" && b.qIndex === i);
+        let optsHtml = '';
+        if (q.o) {
+            q.o.forEach((o,j) => {
+                optsHtml += `<div class="mcq-opt" onclick="selectExamOption(this, ${j})">${String.fromCharCode(65+j)}) ${o}</div>`;
+            });
+        }
         div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}">
           <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('APO Exam', ${i})">★</button>
           <strong>Q${i+1}: ${q.q}</strong>
-          ${q.o.map((o,j) => `<div class="mcq-opt" onclick="selectExamOption(this, ${j})">${String.fromCharCode(65+j)}) ${o}</div>`).join('')}
+          ${optsHtml}
           ${q.n ? `<div class="note-box" id="note-${i}" style="display:none">Note: ${q.n}</div>` : ''}
         </div>`;
     });
     document.getElementById('submitExamBtn').style.display = 'inline-block';
-    showToast(`APO Exam Started: ${activeExamQuestions.length} Qs.`);
+    showToast(`${examTitle} Started: ${activeExamQuestions.length} Qs.`);
+    startQuizTimer(durationSeconds);
 }
 
-function check(el, idx, ans) {
+function check(el, idx, ans, topic, qIdx) {
   const card = el.closest('.mcq-card'); if(card.classList.contains('answered')) return;
   card.classList.add('answered'); el.classList.add('selected');
   if(idx === ans) { el.classList.add('correct'); showToast("Correct!"); } 
   else { el.classList.add('wrong'); const correctEl = card.querySelectorAll('.mcq-opt')[ans]; if(correctEl) correctEl.classList.add('correct'); showToast("Wrong!"); }
   const note = document.getElementById(`note-${card.id.split('-')[1]}`); if(note) note.style.display = 'block';
+  
+  markQuestionAnswered(topic, qIdx);
 }
 
 function selectExamOption(el, idx) {
@@ -1387,6 +2362,8 @@ function submitExam() {
     if(!qc) return;
     const cards = qc.querySelectorAll('.mcq-card');
     let score = 0;
+    const subtypeVal = document.getElementById('quizSubtypeSelect').value;
+    const examName = subtypeVal === 'apo30' ? 'APO 30% LDCE Exam' : 'APO 70% LDCE Exam';
 
     cards.forEach((card, i) => {
         card.classList.add('submitted'); 
@@ -1405,12 +2382,13 @@ function submitExam() {
 
     const resContainer = document.getElementById('examResultContainer');
     resContainer.style.display = 'block';
-    resContainer.innerHTML = `<h2 style="color:var(--success); margin:10px 0;">APO Exam Complete!</h2><h3>Final Score: ${score} / ${cards.length}</h3>`;
+    resContainer.innerHTML = `<h2 style="color:var(--success); margin:10px 0;" class="exam-result-box">${examName} Complete!</h2><h3>Final Score: ${score} / ${cards.length}</h3>`;
     document.getElementById('submitExamBtn').style.display = 'none';
     
     let hist = getExamHistory();
     hist.push({
         id: Date.now(),
+        type: examName,
         date: new Date().toLocaleString(),
         score: score,
         total: cards.length,
@@ -1418,6 +2396,60 @@ function submitExam() {
     });
     saveExamHistory(hist);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// --- PASSWORD-PROTECTED DELETION SYSTEM ---
+let pendingDeletionType = null;
+
+function promptDelete(type) {
+    pendingDeletionType = type;
+    document.getElementById('deleteActionPasswordInput').value = "";
+    document.getElementById('deletePasswordModal').style.display = 'flex';
+}
+
+function executeVerifiedDeletion() {
+    const entered = document.getElementById('deleteActionPasswordInput').value;
+    const savedPass = localStorage.getItem("app_password") || "1234";
+    
+    if (entered !== savedPass) {
+        showToast("Incorrect Password! Deletion aborted.");
+        return;
+    }
+    
+    document.getElementById('deletePasswordModal').style.display = 'none';
+    
+    if (pendingDeletionType === 'topic') {
+        const t = document.getElementById('deleteMcqSelect').value; 
+        if (!t) return showToast("Select an MCQ topic first.");
+        let d = getMCQs(); delete d[t]; saveMCQs(d); 
+        showToast("Topic Deleted"); updateDeleteSelects(); updateSelects();
+    } else if (pendingDeletionType === 'question') {
+        const topic = document.getElementById('deleteMcqSelect').value;
+        const qIndex = document.getElementById('deleteSpecificMcqSelect').value;
+        if(!topic || qIndex === "") return showToast("Select a topic and question.");
+        let d = getMCQs();
+        if(d[topic]) {
+            d[topic].splice(parseInt(qIndex), 1);
+            if(d[topic].length === 0) delete d[topic];
+            saveMCQs(d);
+            showToast("Question Deleted");
+            updateDeleteSelects();
+            updateSelects();
+        }
+    } else if (pendingDeletionType === 'note') {
+        const t = document.getElementById('deleteNoteSelect').value; 
+        if (!t) return showToast("Select a note topic first.");
+        let n = getTextNotes(); delete n[t]; localStorage.setItem("txt_notes", JSON.stringify(n));
+        deleteFile(`note_${t}`).then(() => { 
+            showToast("Note Deleted"); 
+            loadSavedNotesList(); renderHomeNote(); updateDeleteSelects(); 
+        });
+    } else if (pendingDeletionType === 'all_images') {
+        clearCarouselImagesConfirmed();
+    } else if (pendingDeletionType === 'modal_image') {
+        deleteModalImageConfirmed();
+    }
+    pendingDeletionType = null;
 }
 
 function updateDeleteSelects() {
@@ -1457,45 +2489,28 @@ function populateSpecificMcqDropdown() {
     });
 }
 
-function deleteCurrentTopic() {
-  const t = document.getElementById('deleteMcqSelect').value; if (!t) return showToast("Select an MCQ topic first.");
-  if (confirm(`Delete ALL MCQs for topic: "${t}"?`)) { 
-      let d = getMCQs(); delete d[t]; saveMCQs(d); 
-      const vc = document.getElementById('viewContainer'); if(vc) vc.innerHTML = ''; 
-      const qc = document.getElementById('quizContainer'); if(qc) qc.innerHTML = ''; 
-      showToast("Topic Deleted"); updateDeleteSelects(); updateSelects(); 
-  }
-}
-
-function deleteSpecificQuestion() {
-    const topic = document.getElementById('deleteMcqSelect').value;
-    const qIndex = document.getElementById('deleteSpecificMcqSelect').value;
-    if(!topic || qIndex === "") return showToast("Select a topic and specific question.");
+async function deleteModalImageConfirmed() {
+    if (cheatImages.length === 0) return;
+    const currentImg = cheatImages[cheatIdx];
+    await deleteFile(currentImg.id);
+    if(currentImg.url.startsWith('blob:')) URL.revokeObjectURL(currentImg.url);
     
-    if(confirm("Permanently delete this individual question?")) {
-        let d = getMCQs();
-        if(d[topic]) {
-            d[topic].splice(parseInt(qIndex), 1);
-            if(d[topic].length === 0) delete d[topic];
-            saveMCQs(d);
-            showToast("Question Deleted");
-            updateDeleteSelects();
-            updateSelects();
-        }
+    cheatImages.splice(cheatIdx, 1);
+    if (cheatIdx >= cheatImages.length) {
+        cheatIdx = Math.max(0, cheatImages.length - 1);
     }
+    updateCarousel();
+    closeImageModal();
+    showToast("Image Deleted Successfully");
 }
 
-function deleteCurrentNote() {
-    const t = document.getElementById('deleteNoteSelect').value; if (!t) return showToast("Select a note topic first.");
-    if (confirm(`Delete note: "${t}"?`)) {
-        let n = getTextNotes(); delete n[t]; localStorage.setItem("txt_notes", JSON.stringify(n));
-        deleteFile(`note_${t}`).then(() => { 
-            showToast("Note Deleted"); 
-            const nda = document.getElementById('noteDisplayArea'); if(nda) nda.innerHTML = ''; 
-            loadSavedNotesList(); renderHomeNote(); updateDeleteSelects(); 
-        }).catch(() => showToast("Error"));
-    }
+async function clearCarouselImagesConfirmed() {
+    if (cheatImages.length === 0) return;
+    for (const img of cheatImages) await deleteFile(img.id);
+    cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
+    cheatImages = []; cheatIdx = 0; updateCarousel(); showToast("All Images Deleted");
 }
+
 function renderDeletePaperList() {
     getKeys(keys => {
         const div = document.getElementById('deletePaperList'); if(!div) return;
@@ -1507,15 +2522,23 @@ function renderDeletePaperList() {
             if (res) {
                 const item = document.createElement('div'); item.className = 'pdf-list-item';
                 item.style.cssText = 'background:var(--card); padding:0.75rem; margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center; border: 1px solid var(--border);';
-                item.innerHTML = `<span style="font-size: 0.9rem;"><strong>${res.meta.name}</strong></span><button class="btn btn-danger btn-sm" onclick="deletePaper('${k}')">Delete</button>`;
+                item.innerHTML = `<span style="font-size: 0.9rem;"><strong>${res.meta.name}</strong></span><button class="btn btn-danger btn-sm" onclick="promptDeletePaper('${k}')">Delete</button>`;
                 div.appendChild(item);
             }
           });
         });
     });
 }
+
+let pendingPaperId = null;
+function promptDeletePaper(id) {
+    pendingPaperId = id;
+    promptDelete('paper');
+}
+
 function saveNote() {
-  const t = document.getElementById('noteTopic').value.trim(); const rawTxt = document.getElementById('noteText').value; const f = document.getElementById('notePdf').files[0];
+  const t = document.getElementById('noteTopic').value.trim(); 
+  const rawTxt = document.getElementById('noteText').value; 
   if (!t) return showToast("Topic name is required");
   
   if(rawTxt) { 
@@ -1525,30 +2548,72 @@ function saveNote() {
       localStorage.setItem("txt_notes", JSON.stringify(n)); 
       renderHomeNote(); 
   }
-  if(f) { saveFile(`note_${t}`, f, {name: f.name}).then(() => { loadSavedNotesList(); updateDeleteSelects(); showToast("Note & PDF Saved"); }); } 
-  else { showToast("Note Saved"); loadSavedNotesList(); updateDeleteSelects(); }
-  document.getElementById('noteTopic').value = ''; document.getElementById('noteText').value = ''; document.getElementById('notePdf').value = '';
+  showToast("Note Saved"); 
+  loadSavedNotesList(); 
+  updateDeleteSelects();
+  document.getElementById('noteTopic').value = ''; 
+  document.getElementById('noteText').value = ''; 
 }
+
+async function saveMultipleNotePdfs(event) {
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
+  
+  let savedCount = 0;
+  for (const f of files) {
+      let topicName = f.name.replace(/\.[^/.]+$/, "").replace(/[_-_]/g, " ");
+      await saveFile(`note_${topicName}`, f, { name: f.name });
+      savedCount++;
+  }
+  loadSavedNotesList();
+  updateDeleteSelects();
+  showToast(`Successfully uploaded ${savedCount} PDF note(s)! File names used as topic names.`);
+  event.target.value = '';
+}
+
 function loadSavedNotesList() {
   getKeys(keys => {
-    const opts = new Set([...Object.keys(getTextNotes()), ...keys.map(k=>k.replace('note_','')).filter(k => !k.startsWith('paper_') && !k.startsWith('carousel_'))]);
-    const sel = document.getElementById('savedNotesSelect'); if(!sel) return;
-    const currentVal = sel.value; sel.innerHTML = '<option value="">-- Select Note --</option>';
-    Array.from(opts).sort().forEach(o => { sel.innerHTML += `<option value="${o}" ${o === currentVal ? 'selected' : ''}>${o}</option>`; });
+    const notes = getTextNotes();
+    const opts = new Set([
+        ...Object.keys(notes), 
+        ...keys.map(k => k.startsWith('note_') ? k.replace('note_', '') : null).filter(Boolean)
+    ]);
+    const sel = document.getElementById('savedNotesSelect'); 
+    if(!sel) return;
+    const currentVal = sel.value; 
+    sel.innerHTML = '<option value="">-- Select Note / PDF --</option>';
+    Array.from(opts).sort().forEach(o => { 
+        sel.innerHTML += `<option value="${o}" ${o === currentVal ? 'selected' : ''}>${o}</option>`; 
+    });
     if (currentVal && !opts.has(currentVal)) {
         const nda = document.getElementById('noteDisplayArea');
         if(nda) nda.innerHTML = '';
     }
   });
 }
+
 function loadNoteView() {
-  const t = document.getElementById('savedNotesSelect').value; const area = document.getElementById('noteDisplayArea'); if(!area) return;
+  const t = document.getElementById('savedNotesSelect').value; 
+  const area = document.getElementById('noteDisplayArea'); 
+  if(!area) return;
   area.innerHTML = '';
   if(!t) return;
-  const txt = getTextNotes()[t];
-  if(txt) area.innerHTML += `<div style="background:var(--card); padding:10px; margin-bottom:10px; border:1px solid var(--border); white-space:pre-wrap;">${txt}</div>`;
-  getFile(`note_${t}`, res => { if(res) { area.innerHTML += `<div id="notePdfRender" class="pdf-viewer-container"></div>`; renderPDF(res.blob, 'notePdfRender'); } });
+  
+  const txtNotes = getTextNotes();
+  if(txtNotes[t]) {
+      area.innerHTML += `<div style="background:var(--card); padding:10px; margin-bottom:10px; border:1px solid var(--border); white-space:pre-wrap;">${txtNotes[t]}</div>`;
+  }
+  
+  getFile(`note_${t}`, res => { 
+      if(res && res.blob) { 
+          activeFullscreenBlob = res.blob;
+          const containerId = `notePdfRender_${Date.now()}`;
+          area.innerHTML += `<div id="${containerId}" class="pdf-viewer-container" onclick="openFullscreenPdf()"></div>`; 
+          renderPDF(res.blob, containerId); 
+      } 
+  });
 }
+
 function savePaper() {
   const n = document.getElementById('paperName').value.trim(); const f = document.getElementById('paperPdf').files[0];
   if(n && f) { saveFile(`paper_${Date.now()}`, f, {name: n, date: new Date().toLocaleDateString()}).then(() => { loadPaperList(); updateDeleteSelects(); showToast("Paper Saved"); }); } 
@@ -1574,10 +2639,17 @@ function loadPaperList() {
   });
 }
 function viewPaper(id, name) {
-  const view = document.getElementById('paperViewer'); document.getElementById('paperTitleViewer').innerText = name; view.style.display = 'block';
-  getFile(id, res => { renderPDF(res.blob, 'pdfRenderer'); }); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  const view = document.getElementById('paperViewer'); 
+  document.getElementById('paperTitleViewer').innerText = name; 
+  view.style.display = 'block';
+  getFile(id, res => { 
+      if(res && res.blob) {
+          activeFullscreenBlob = res.blob;
+          renderPDF(res.blob, 'pdfRenderer'); 
+      }
+  }); 
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
-function deletePaper(id) { if(confirm("Permanently delete this paper?")) { deleteFile(id).then(() => { showToast("Paper Deleted"); loadPaperList(); renderDeletePaperList(); const pv = document.getElementById('paperViewer'); if(pv) pv.style.display='none'; }); } }
 </script>
 </body>
 </html>
