@@ -2512,8 +2512,8 @@ request.onsuccess = e => {
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
-// FIXED PASSWORD FUNCTIONS (No missing definitions, exact match to your buttons)
-function checkAppPassword() {
+// Fixed check and verify app password functions ensuring global scope availability
+window.checkAppPassword = function checkAppPassword() {
     const savedPass = localStorage.getItem("app_password") || "1234";
     const overlay = document.getElementById("passwordOverlay");
     if (savedPass && overlay) {
@@ -2524,7 +2524,7 @@ function checkAppPassword() {
     }
 }
 
-function verifyAppPassword() {
+window.verifyAppPassword = function verifyAppPassword() {
     const passwordInput = document.getElementById("appPasswordInput");
     if (!passwordInput) return;
     
