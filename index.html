@@ -1503,7 +1503,7 @@ request.onsuccess = e => {
     }
   }
 
-  const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]?\s*(.+)?$/i;
+  const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]\s*(.+)?$/i;
   const optMatchRegex = /^(?:\(?([a-zA-Z0-9])\)?)\s*[\).:]\s*(.+)$/;
   const ansMatchRegex = /^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*([a-zA-Z0-9])\b/i;
   const noteMatchRegex = /^(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
@@ -2509,5 +2509,39 @@ request.onsuccess = e => {
           renderPDF(res.blob, 'pdfRenderer'); 
       }
   }); 
-  window.scrollTo({ top: document.body.scrollHeight, height: 'smooth' });
-}</script></body></html>
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+// FIXED PASSWORD FUNCTIONS (No missing definitions, exact match to your buttons)
+function checkAppPassword() {
+    const savedPass = localStorage.getItem("app_password") || "1234";
+    const overlay = document.getElementById("passwordOverlay");
+    if (savedPass && overlay) {
+        overlay.style.display = "flex";
+    } else if (overlay) {
+        overlay.style.display = "none";
+        initAutoRestore();
+    }
+}
+
+function verifyAppPassword() {
+    const passwordInput = document.getElementById("appPasswordInput");
+    if (!passwordInput) return;
+    
+    const entered = passwordInput.value;
+    const savedPass = localStorage.getItem("app_password") || "1234";
+    const overlay = document.getElementById("passwordOverlay");
+
+    if (entered === savedPass) {
+        if (overlay) {
+            overlay.style.display = "none";
+            overlay.style.visibility = "hidden";
+        }
+        initAutoRestore();
+        showToast("App Unlocked");
+    } else {
+        showToast("Incorrect Password!");
+        passwordInput.value = "";
+    }
+}
+</script></body></html>
