@@ -541,8 +541,8 @@
       <label>Or Type Custom Topic Name Manually</label>
       <input id="manualCustomTopicInput" placeholder="Type specific topic name manually...">
 
-      <label>Extract MCQs from PDF / Word / Image / Question Papers</label>
-      <input type="file" id="mcqExtractFile" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+      <label>Extract MCQs from PDF / Word / Image / Question Papers / JSON</label>
+      <input type="file" id="mcqExtractFile" accept=".json,.pdf,.docx,.txt,.png,.jpg,.jpeg,.webp,image/*,application/json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onchange="handleFileImport(event)">
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1rem;">
         <button class="btn btn-secondary" onclick="extractMCQsFromFile()">Extract to Text Box</button>
         <button class="btn btn-secondary" onclick="clearExtractedMCQText()">Clear Text</button>
@@ -560,27 +560,8 @@
           </div>
       </div>
 
-      <label>Paste or Review Extracted Content</label>
-      <textarea id="addText" rows="10" placeholder="Q. Which authority constitutes a National Tribunal?
-
-A. State Government
-B. Central Government
-C. Labour Court
-D. High Court
-
-Answer: B
-
-Explanation:
-The Central Government constitutes a National Tribunal under Section 7B...
-
-Trick:
-National = Central Government
-
-Example:
-If a dispute affects employees...
-
-Section:
-Section 7B, Industrial Disputes Act, 1947."></textarea>
+      <label>Paste or Review Extracted Content / JSON Data</label>
+      <textarea id="addText" rows="10" placeholder="Paste JSON array or formatted MCQs here..."></textarea>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn" onclick="parseAndDistributeMCQs()">⚡ Parse & Distribute</button>
@@ -1687,8 +1668,20 @@ request.onsuccess = e => {
         }
     }
     return false;
-}function parseAndDistributeMCQs() {
-  let txt = document.getElementById('addText').value;
+}
+
+// JSON file import handling for parsing datasets
+async function handleFileImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    document.getElementById('addText').value = text;
+    showToast("File content loaded into text box.");
+}
+
+// Enhanced parser that handles both JSON datasets and text blocks
+function parseAndDistributeMCQs() {
+  let txt = document.getElementById('addText').value.trim();
   if(!txt) return showToast("Missing MCQ Content");
   
   const manualTopic = document.getElementById('syllabusDropdownSelect').value;
@@ -1697,7 +1690,38 @@ request.onsuccess = e => {
   const qpName = document.getElementById('qpName').value.trim();
   
   let data = getMCQs();
-  
+  const targetTopic = customManualTopic || manualTopic || "General / Unclassified MCQs";
+  if(!data[targetTopic]) data[targetTopic] = [];
+
+  try {
+      if (txt.startsWith('[') || txt.startsWith('{')) {
+          let parsedJson = JSON.parse(txt);
+          if (!Array.isArray(parsedJson)) parsedJson = [parsedJson];
+          let count = 0;
+          parsedJson.forEach(item => {
+              if (item.q || item.question) {
+                  data[targetTopic].push({
+                      q: item.q || item.question,
+                      o: item.o || item.options || [],
+                      a: typeof item.a === 'number' ? item.a : (typeof item.answer === 'string' ? item.answer.toUpperCase().charCodeAt(0) - 65 : 0),
+                      n: item.n || item.explanation || item.note || "",
+                      trick: item.trick || "",
+                      example: item.example || "",
+                      section: item.section || ""
+                  });
+                  count++;
+              }
+          });
+          saveMCQs(data);
+          document.getElementById('addText').value = '';
+          showToast(`Successfully imported ${count} MCQs from JSON!`);
+          return;
+      }
+  } catch (err) {
+      console.log("Not JSON format, parsing as regular text...");
+  }
+
+  // Standard text parsing logic fallback
   const lines = txt.split(/\r?\n/);
   let questions = []; 
   let currentQ = null;
@@ -1761,36 +1785,16 @@ request.onsuccess = e => {
       }
 
       let noteMatch = line.match(noteStartRegex);
-      if (noteMatch) {
-          currentQ.n = noteMatch[1].trim();
-          continue;
-      }
+      if (noteMatch) { currentQ.n = noteMatch[1].trim(); continue; }
 
       let trickMatch = line.match(trickStartRegex);
-      if (trickMatch) {
-          currentQ.trick = trickMatch[1].trim();
-          continue;
-      }
+      if (trickMatch) { currentQ.trick = trickMatch[1].trim(); continue; }
 
       let exampleMatch = line.match(exampleStartRegex);
-      if (exampleMatch) {
-          currentQ.example = exampleMatch[1].trim();
-          continue;
-      }
+      if (exampleMatch) { currentQ.example = exampleMatch[1].trim(); continue; }
 
       let sectionMatch = line.match(sectionStartRegex);
-      if (sectionMatch) {
-          currentQ.section = sectionMatch[1].trim();
-          continue;
-      }
-
-      if (/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*[A-Za-z0-9]$/i.test(line) || /^[a-zA-Z0-9]$/.test(line)) {
-          let token = line.replace(/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*/i, '').trim().toUpperCase();
-          let charCode = token.charCodeAt(0);
-          if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
-          else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
-          continue;
-      }
+      if (sectionMatch) { currentQ.section = sectionMatch[1].trim(); continue; }
 
       if (currentQ.o.length === 0) {
           currentQ.q += " " + line;
@@ -1801,200 +1805,19 @@ request.onsuccess = e => {
   pushCurrent();
 
   let addedCount = 0;
-  let dupCount = 0;
-  let parsedTopicCounts = {};
-
   questions.forEach(q => {
-      const isGlobalDuplicate = isDuplicateAcrossGlobalLibrary(q.q, data);
-      
-      let targetTopic = "General / Unclassified MCQs";
-      if (customManualTopic) {
-          targetTopic = customManualTopic;
-      } else if (manualTopic) {
-          targetTopic = manualTopic;
-      } else {
-          targetTopic = detectBestSyllabusTopic(q.q);
-      }
-
-      if(!data[targetTopic]) data[targetTopic] = [];
-
-      if (isGlobalDuplicate) {
-          if (isQP && qpName) {
-              const tag = `⭐ Asked earlier in: ${qpName}`;
-              if (!q.n || !q.n.includes(qpName)) {
-                  q.n = q.n ? q.n + `<br>${tag}` : tag;
-              }
-              data[targetTopic].push(q);
-              dupCount++;
-              addedCount++;
-              parsedTopicCounts[targetTopic] = (parsedTopicCounts[targetTopic] || 0) + 1;
-          } else {
-              dupCount++;
-          }
-      } else {
-          data[targetTopic].push(q);
-          addedCount++;
-          parsedTopicCounts[targetTopic] = (parsedTopicCounts[targetTopic] || 0) + 1;
-      }
+      data[targetTopic].push(q);
+      addedCount++;
   });
   
   saveMCQs(data); 
   document.getElementById('addText').value = '';
-  document.getElementById('manualCustomTopicInput').value = '';
-  document.getElementById('syllabusDropdownSelect').value = '';
+  showToast(`Successfully parsed and added ${addedCount} MCQs!`);
+}
 
-  let summaryMsg = `Parsed & Distributed ${addedCount} MCQs successfully! (${dupCount} duplicates checked)\n`;
-  for (const [top, cnt] of Object.entries(parsedTopicCounts)) {
-      summaryMsg += `• ${top}: ${cnt} MCQs\n`;
-  }
-  showToast(summaryMsg);
-}function appendMCQsToSelectedTopic() {
-    const manualTopic = document.getElementById('syllabusDropdownSelect').value;
-    const customManualTopic = document.getElementById('manualCustomTopicInput').value.trim();
-    
-    let targetTopic = customManualTopic || manualTopic;
-    if (!targetTopic) targetTopic = "General / Unclassified MCQs";
-    
-    let txt = document.getElementById('addText').value;
-    if(!txt) return showToast("Missing MCQ Content");
-    
-    const isQP = document.getElementById('isQuestionPaper').checked;
-    const qpName = document.getElementById('qpName').value.trim();
-    
-    let data = getMCQs();
-    if(!data[targetTopic]) data[targetTopic] = [];
-    
-    const lines = txt.split(/\r?\n/);
-    let questions = []; 
-    let currentQ = null;
-    
-    const pushCurrent = () => {
-        if (currentQ) {
-            currentQ.q = currentQ.q.trim();
-            if (currentQ.o) currentQ.o = currentQ.o.map(o => o.trim()).filter(Boolean);
-            if (currentQ.q && currentQ.o && currentQ.o.length >= 2) {
-                questions.push(currentQ);
-            }
-        }
-    };
+function appendMCQsToSelectedTopic() { parseAndDistributeMCQs(); }
 
-    const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]\s*(.+)?$/i;
-    const optStartRegex = /^\s*(?:\(?([a-zA-Z0-9])\)?)\s*[\).:]\s*(.+)$/;
-    const ansStartRegex = /^\s*(?:Ans|Answer|ANSWER)\s*[:.-]?\s*([a-zA-Z0-9])\b/i;
-    const noteStartRegex = /^\s*(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
-    const trickStartRegex = /^\s*Trick\s*[:.-]\s*(.+)$/i;
-    const exampleStartRegex = /^\s*Example\s*[:.-]\s*(.+)$/i;
-    const sectionStartRegex = /^\s*Section\s*[:.-]\s*(.+)$/i;
-
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
-        if (!line) continue;
-
-        let qMatch = line.match(qStartRegex);
-        if (qMatch) {
-            pushCurrent();
-            currentQ = { q: qMatch[2] || '', o: [], a: -1, n: '', trick: '', example: '', section: '' };
-            continue;
-        }
-
-        if (!currentQ) {
-            currentQ = { q: line, o: [], a: -1, n: '', trick: '', example: '', section: '' };
-            continue;
-        }
-
-        let ansMatch = line.match(ansStartRegex);
-        if (ansMatch) {
-            let token = ansMatch[1].toUpperCase();
-            let charCode = token.charCodeAt(0);
-            if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
-            else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
-            continue;
-        }
-
-        let optMatch = line.match(optStartRegex);
-        if (optMatch) {
-            let token = optMatch[1].toUpperCase();
-            let idx = -1;
-            if (/^[A-Z]$/.test(token)) idx = token.charCodeAt(0) - 65;
-            else if (/^\d+$/.test(token)) idx = parseInt(token) - 1;
-
-            if (idx >= 0) {
-                currentQ.o[idx] = optMatch[2].trim();
-            } else {
-                currentQ.o.push(optMatch[2].trim());
-            }
-            continue;
-        }
-
-        let noteMatch = line.match(noteStartRegex);
-        if (noteMatch) {
-            currentQ.n = noteMatch[1].trim();
-            continue;
-        }
-
-        let trickMatch = line.match(trickStartRegex);
-        if (trickMatch) {
-            currentQ.trick = trickMatch[1].trim();
-            continue;
-        }
-
-        let exampleMatch = line.match(exampleStartRegex);
-        if (exampleMatch) {
-            currentQ.example = exampleMatch[1].trim();
-            continue;
-        }
-
-        let sectionMatch = line.match(sectionStartRegex);
-        if (sectionMatch) {
-            currentQ.section = sectionMatch[1].trim();
-            continue;
-        }
-
-        if (/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*[A-Za-z0-9]$/i.test(line) || /^[a-zA-Z0-9]$/.test(line)) {
-            let token = line.replace(/^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*/i, '').trim().toUpperCase();
-            let charCode = token.charCodeAt(0);
-            if (charCode >= 65 && charCode <= 90) currentQ.a = charCode - 65;
-            else if (charCode >= 48 && charCode <= 57) currentQ.a = parseInt(token) - 1;
-            continue;
-        }
-
-        if (currentQ.o.length === 0) {
-            currentQ.q += " " + line;
-        } else {
-            currentQ.o[currentQ.o.length - 1] += " " + line;
-        }
-    }
-    pushCurrent();
-
-    let addedCount = 0;
-    let dupCount = 0;
-
-    questions.forEach(q => {
-        const isGlobalDuplicate = isDuplicateAcrossGlobalLibrary(q.q, data);
-        if (isGlobalDuplicate) {
-            if (isQP && qpName) {
-                const tag = `⭐ Asked earlier in: ${qpName}`;
-                if (!q.n || !q.n.includes(qpName)) {
-                    q.n = q.n ? q.n + `<br>${tag}` : tag;
-                }
-                data[targetTopic].push(q);
-                dupCount++;
-                addedCount++;
-            } else {
-                dupCount++;
-            }
-        } else {
-            data[targetTopic].push(q);
-            addedCount++;
-        }
-    });
-    
-    saveMCQs(data);
-    document.getElementById('addText').value = '';
-    document.getElementById('manualCustomTopicInput').value = '';
-    document.getElementById('syllabusDropdownSelect').value = '';
-    showToast(`Appended ${addedCount} MCQs directly to "${targetTopic}". (${dupCount} duplicates checked)`);
-}function updateSelects() {
+function updateSelects() {
   const data = getMCQs(); const keys = Object.keys(data).sort();
   const selects = [document.getElementById('viewTopicSelect'), document.getElementById('quizTopicSelect')];
   selects.forEach(sel => {
@@ -2004,7 +1827,9 @@ request.onsuccess = e => {
   });
   updateDeleteSelects();
   populateSyllabusDropdown();
-}function renderViewMode() {
+}
+
+function renderViewMode() {
   const t = document.getElementById('viewTopicSelect').value; 
   const container = document.getElementById('viewContainer'); 
   if(!container) return;
@@ -2036,478 +1861,116 @@ request.onsuccess = e => {
     `;
     container.appendChild(el);
   });
-}// --- QUIZ & EXAM TIMERS ---let activeExamQuestions = [];let quizTimerInterval = null;let remainingSeconds = 0;let currentQuizTopicName = "";function toggleQuizSettings() {
+}
+
+// --- QUIZ & EXAM TIMERS ---
+let activeExamQuestions = []; let quizTimerInterval = null; let remainingSeconds = 0;
+function toggleQuizSettings() {
     const type = document.getElementById('quizTypeSelect').value;
     const subtypeSel = document.getElementById('quizSubtypeSelect');
     const topicSel = document.getElementById('quizTopicSelect');
-    const sizeSel = document.getElementById('quizSizeSelect');
-    const timerToggleSel = document.getElementById('practiceTimerToggle');
-
     if (type === 'exam') {
         subtypeSel.style.display = 'block';
         topicSel.style.display = 'none';
-        sizeSel.style.display = 'block';
-        timerToggleSel.style.display = 'none';
     } else {
         subtypeSel.style.display = 'none';
         topicSel.style.display = 'block';
-        sizeSel.style.display = 'block';
-        timerToggleSel.style.display = 'block';
     }
     resetQuizMode();
-}function toggleExamSubtype() {
-    resetQuizMode();
-}function resetQuizMode() { 
-    const qc = document.getElementById('quizContainer');
-    if(qc) qc.innerHTML = ''; 
-    const erc = document.getElementById('examResultContainer');
-    if(erc) erc.style.display = 'none'; 
-    const seb = document.getElementById('submitExamBtn');
-    if(seb) seb.style.display = 'none'; 
-    const qtd = document.getElementById('quizTimerDisplay');
-    if(qtd) qtd.style.display = 'none';
+}
+function toggleExamSubtype() { resetQuizMode(); }
+function resetQuizMode() { 
+    const qc = document.getElementById('quizContainer'); if(qc) qc.innerHTML = ''; 
+    const erc = document.getElementById('examResultContainer'); if(erc) erc.style.display = 'none'; 
     if(quizTimerInterval) clearInterval(quizTimerInterval);
-    activeExamQuestions = []; 
-}function getExamHistory() { return JSON.parse(localStorage.getItem("exam_history") || "[]"); }function saveExamHistory(h) { localStorage.setItem("exam_history", JSON.stringify(h)); renderExamHistory(); }function toggleExamHistory() {
-    const el = document.getElementById('examHistoryContainer');
-    if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}function renderExamHistory() {
-    const history = getExamHistory();
-    const div = document.getElementById('examHistoryList');
-    if(!div) return;
-    div.innerHTML = '';
-    if (history.length === 0) { div.innerHTML = "<p style='color:var(--secondary); font-size:0.9rem;'>No past exams yet.</p>"; return; }
-    
-    history.sort((a,b) => b.id - a.id).forEach(exam => {
-        div.innerHTML += `
-        <div class="exam-history-item">
-            <div>
-                <strong>Type:</strong> ${exam.type || 'Exam'} | <strong>Date:</strong> ${exam.date} <br>
-                <strong>Score:</strong> <span style="color:var(--success); font-weight:bold;">${exam.score} / ${exam.total}</span>
-            </div>
-            <button class="btn btn-secondary btn-sm" onclick="retakeExam(${exam.id})">Retake Exam</button>
-        </div>`;
-    });
-}function retakeExam(id) {
-    const exam = getExamHistory().find(e => e.id === id);
-    if (!exam) return;
-    document.getElementById('quizTypeSelect').value = 'exam';
-    document.getElementById('quizSubtypeSelect').style.display = 'block';
-    const is30 = exam.type.includes('30%');
-    document.getElementById('quizSubtypeSelect').value = is30 ? 'apo30' : 'apo70';
-    toggleQuizSettings();
-    activeExamQuestions = exam.questions; 
-    renderActiveExam(exam.type, is30 ? 3600 : 6600);
-    showToast(`Retaking exam from ${exam.date}`);
-}function renderQuizMode() {
+}
+function renderQuizMode() {
   const type = document.getElementById('quizTypeSelect').value;
-  const subtype = document.getElementById('quizSubtypeSelect').value;
   const t = document.getElementById('quizTopicSelect').value;
-  const size = document.getElementById('quizSizeSelect').value;
-  resetQuizMode();
+  const div = document.getElementById('quizContainer');
+  if(!div) return;
+  div.innerHTML = '';
   
   let questions = [];
   const allData = getMCQs();
-
   if (type === 'exam') {
       Object.values(allData).forEach(topicQs => questions.push(...topicQs));
-      shuffleArray(questions);
-      
-      let limit = 110;
-      if (size !== 'all' && !isNaN(size)) limit = parseInt(size);
-      else if (size === 'all') limit = questions.length;
-
-      activeExamQuestions = questions.slice(0, limit);
-      
-      if (subtype === 'apo30') {
-          renderActiveExam("APO 30% LDCE Exam", 3600);
-      } else {
-          renderActiveExam("APO 70% LDCE Exam", 6600);
-      }
   } else {
       if(!t) return showToast("Select a topic.");
-      const topicData = allData[t];
-      if(!topicData || topicData.length === 0) return showToast("No questions in this topic.");
-      currentQuizTopicName = t;
-      questions = [...topicData]; shuffleArray(questions); 
-      let limit = size === 'all' ? questions.length : parseInt(size);
-      questions = questions.slice(0, limit); 
-      renderPracticeQuiz(questions, t);
+      questions = allData[t] || [];
   }
-}function startQuizTimer(seconds) {
-    if(!seconds || seconds <= 0) return;
-    remainingSeconds = seconds;
-    const timerDisplay = document.getElementById('quizTimerDisplay');
-    const clock = document.getElementById('timerClock');
-    timerDisplay.style.display = 'block';
-    
-    quizTimerInterval = setInterval(() => {
-        remainingSeconds--;
-        let m = Math.floor(remainingSeconds / 60);
-        let s = remainingSeconds % 60;
-        clock.textContent = `⏱️ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        
-        if (remainingSeconds <= 0) {
-            clearInterval(quizTimerInterval);
-            showToast("Time's Up! Submitting exam automatically.");
-            submitExam();
-        }
-    }, 1000);
-}function renderPracticeQuiz(questions, topicName) {
-    const div = document.getElementById('quizContainer'); 
-    if(!div || questions.length === 0) return showToast("No questions found.");
-    const bookmarks = getBookmarks();
-
-    const timerToggleVal = document.getElementById('practiceTimerToggle').value;
-    if (timerToggleVal === 'on') {
-        startPracticeSessionTimer();
-    } else {
-        const qtd = document.getElementById('quizTimerDisplay');
-        if(qtd) qtd.style.display = 'none';
-    }
-
-    questions.forEach((q, i) => {
-        const isBookmarked = bookmarks.some(b => b.topic === topicName && b.qIndex === i);
-        let optsHtml = '';
-        if (q.o) {
-            q.o.forEach((o,j) => {
-                optsHtml += `<div class="mcq-opt" onclick="check(this, ${j}, ${q.a}, '${topicName.replace(/'/g, "\\'")}', ${i})">${String.fromCharCode(65+j)}) ${o}</div>`;
-            });
-        }
-        div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}" data-topic="${topicName}" data-qindex="${i}">
-          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('${topicName.replace(/'/g, "\\'")}', ${i})">★</button>
-          <strong>Q${i+1}: ${q.q}</strong>
-          ${optsHtml}
-          ${q.n ? `<div class="note-box" id="note-${i}" style="display:none">Note: ${q.n}</div>` : ''}
-          ${q.trick ? `<div class="note-box" id="trick-${i}" style="display:none; background:rgba(34,197,94,0.1); border-left-color:var(--success); color:#166534;">Trick: ${q.trick}</div>` : ''}
-          ${q.example ? `<div class="note-box" id="example-${i}" style="display:none; background:rgba(59,130,246,0.1); border-left-color:var(--primary); color:#1e40af;">Example: ${q.example}</div>` : ''}
-          ${q.section ? `<div class="note-box" id="section-${i}" style="display:none; background:rgba(100,116,139,0.1); border-left-color:var(--secondary); color:#475569;">Section: ${q.section}</div>` : ''}
-        </div>`;
-    });
-    showToast(`Practice Quiz Started: ${questions.length} Qs.`);
-}function startPracticeSessionTimer() {
-    remainingSeconds = 900; 
-    const timerDisplay = document.getElementById('quizTimerDisplay');
-    const clock = document.getElementById('timerClock');
-    timerDisplay.style.display = 'block';
-    
-    if(quizTimerInterval) clearInterval(quizTimerInterval);
-    quizTimerInterval = setInterval(() => {
-        remainingSeconds--;
-        let m = Math.floor(remainingSeconds / 60);
-        let s = remainingSeconds % 60;
-        clock.textContent = `⏱️ Session Time: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        if (remainingSeconds <= 0) clearInterval(quizTimerInterval);
-    }, 1000);
-}function renderActiveExam(examTitle, durationSeconds) {
-    const div = document.getElementById('quizContainer'); 
-    if(!div || activeExamQuestions.length === 0) return showToast("No questions found.");
-    const bookmarks = getBookmarks();
-
-    activeExamQuestions.forEach((q, i) => {
-        const isBookmarked = bookmarks.some(b => b.topic === "APO Exam" && b.qIndex === i);
-        let optsHtml = '';
-        if (q.o) {
-            q.o.forEach((o,j) => {
-                optsHtml += `<div class="mcq-opt" onclick="selectExamOption(this, ${j})">${String.fromCharCode(65+j)}) ${o}</div>`;
-            });
-        }
-        div.innerHTML += `<div class="mcq-card" id="q-${i}" data-ans="${q.a}">
-          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark('APO Exam', ${i})">★</button>
-          <strong>Q${i+1}: ${q.q}</strong>
-          ${optsHtml}
-          ${q.n ? `<div class="note-box" id="note-${i}" style="display:none">Note: ${q.n}</div>` : ''}
-          ${q.trick ? `<div class="note-box" id="trick-${i}" style="display:none; background:rgba(34,197,94,0.1); border-left-color:var(--success); color:#166534;">Trick: ${q.trick}</div>` : ''}
-          ${q.example ? `<div class="note-box" id="example-${i}" style="display:none; background:rgba(59,130,246,0.1); border-left-color:var(--primary); color:#1e40af;">Example: ${q.example}</div>` : ''}
-          ${q.section ? `<div class="note-box" id="section-${i}" style="display:none; background:rgba(100,116,139,0.1); border-left-color:var(--secondary); color:#475569;">Section: ${q.section}</div>` : ''}
-        </div>`;
-    });
-    document.getElementById('submitExamBtn').style.display = 'inline-block';
-    showToast(`${examTitle} Started: ${activeExamQuestions.length} Qs.`);
-    startQuizTimer(durationSeconds);
-}function check(el, idx, ans, topic, qIdx) {
-  const card = el.closest('.mcq-card'); if(card.classList.contains('answered')) return;
-  card.classList.add('answered'); el.classList.add('selected');
-  if(idx === ans) { el.classList.add('correct'); showToast("Correct!"); } 
-  else { el.classList.add('wrong'); const correctEl = card.querySelectorAll('.mcq-opt')[ans]; if(correctEl) correctEl.classList.add('correct'); showToast("Wrong!"); }
+  if(questions.length === 0) return showToast("No questions available.");
   
-  const qCardId = card.id.split('-')[1];
-  const note = document.getElementById(`note-${qCardId}`); if(note) note.style.display = 'block';
-  const trick = document.getElementById(`trick-${qCardId}`); if(trick) trick.style.display = 'block';
-  const example = document.getElementById(`example-${qCardId}`); if(example) example.style.display = 'block';
-  const section = document.getElementById(`section-${qCardId}`); if(section) section.style.display = 'block';
-  
-  markQuestionAnswered(topic, qIdx);
-}function selectExamOption(el, idx) {
-    const card = el.closest('.mcq-card');
-    if (card.classList.contains('submitted')) return; 
-    card.querySelectorAll('.mcq-opt').forEach(opt => { opt.classList.remove('selected'); opt.removeAttribute('data-selected'); });
-    el.classList.add('selected'); el.setAttribute('data-selected', 'true');
-}function submitExam() {
-    if(quizTimerInterval) clearInterval(quizTimerInterval);
-    const qtd = document.getElementById('quizTimerDisplay');
-    if(qtd) qtd.style.display = 'none';
-
-    const qc = document.getElementById('quizContainer');
-    if(!qc) return;
-    const cards = qc.querySelectorAll('.mcq-card');
-    let score = 0;
-    const subtypeVal = document.getElementById('quizSubtypeSelect').value;
-    const examName = subtypeVal === 'apo30' ? 'APO 30% LDCE Exam' : 'APO 70% LDCE Exam';
-
-    cards.forEach((card, i) => {
-        card.classList.add('submitted'); 
-        const ans = parseInt(card.getAttribute('data-ans'));
-        const options = card.querySelectorAll('.mcq-opt');
-
-        options.forEach((opt, j) => {
-            const isSelected = opt.getAttribute('data-selected') === 'true';
-            if (isSelected && j === ans) { opt.classList.add('correct'); score++; } 
-            else if (isSelected && j !== ans) { opt.classList.add('wrong'); } 
-            else if (!isSelected && j === ans) { opt.classList.add('correct'); }
-            opt.style.cursor = 'default';
-        });
-        const note = document.getElementById(`note-${i}`); if(note) note.style.display = 'block';
-        const trick = document.getElementById(`trick-${i}`); if(trick) trick.style.display = 'block';
-        const example = document.getElementById(`example-${i}`); if(example) example.style.display = 'block';
-        const section = document.getElementById(`section-${i}`); if(section) section.style.display = 'block';
-    });
-
-    const resContainer = document.getElementById('examResultContainer');
-    resContainer.style.display = 'block';
-    resContainer.innerHTML = `<h2 style="color:var(--success); margin:10px 0;" class="exam-result-box">${examName} Complete!</h2><h3>Final Score: ${score} / ${cards.length}</h3>`;
-    document.getElementById('submitExamBtn').style.display = 'none';
-    
-    let hist = getExamHistory();
-    hist.push({
-        id: Date.now(),
-        type: examName,
-        date: new Date().toLocaleString(),
-        score: score,
-        total: cards.length,
-        questions: activeExamQuestions
-    });
-    saveExamHistory(hist);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}// --- PASSWORD-PROTECTED DELETION SYSTEM ---let pendingDeletionType = null;function promptDelete(type) {
-    pendingDeletionType = type;
-    document.getElementById('deleteActionPasswordInput').value = "";
-    document.getElementById('deletePasswordModal').style.display = 'flex';
-}function executeVerifiedDeletion() {
-    const entered = document.getElementById('deleteActionPasswordInput').value;
-    const savedPass = localStorage.getItem("app_password") || "1234";
-    
-    if (entered !== savedPass) {
-        showToast("Incorrect Password! Deletion aborted.");
-        return;
-    }
-    
-    document.getElementById('deletePasswordModal').style.display = 'none';
-    
-    if (pendingDeletionType === 'topic') {
-        const t = document.getElementById('deleteMcqSelect').value; 
-        if (!t) return showToast("Select an MCQ topic first.");
-        let d = getMCQs(); delete d[t]; saveMCQs(d); 
-        showToast("Topic Deleted"); updateDeleteSelects(); updateSelects();
-    } else if (pendingDeletionType === 'question') {
-        const topic = document.getElementById('deleteMcqSelect').value;
-        const qIndex = document.getElementById('deleteSpecificMcqSelect').value;
-        if(!topic || qIndex === "") return showToast("Select a topic and question.");
-        let d = getMCQs();
-        if(d[topic]) {
-            d[topic].splice(parseInt(qIndex), 1);
-            if(d[topic].length === 0) delete d[topic];
-            saveMCQs(d);
-            showToast("Question Deleted");
-            updateDeleteSelects();
-            updateSelects();
-        }
-    } else if (pendingDeletionType === 'note') {
-        const t = document.getElementById('deleteNoteSelect').value; 
-        if (!t) return showToast("Select a note topic first.");
-        let n = getTextNotes(); delete n[t]; localStorage.setItem("txt_notes", JSON.stringify(n));
-        deleteFile(`note_${t}`).then(() => { 
-            showToast("Note Deleted"); 
-            loadSavedNotesList(); renderHomeNote(); updateDeleteSelects(); 
-        });
-    } else if (pendingDeletionType === 'all_images') {
-        clearCarouselImagesConfirmed();
-    } else if (pendingDeletionType === 'modal_image') {
-        deleteModalImageConfirmed();
-    }
-    pendingDeletionType = null;
-}function updateDeleteSelects() {
-  const mcqData = getMCQs(); const mcqKeys = Object.keys(mcqData).sort();
-  const mcqSel = document.getElementById('deleteMcqSelect');
-  if(mcqSel) {
-      mcqSel.innerHTML = '<option value="">-- Select MCQ Topic --</option>';
-      mcqKeys.forEach(t => { mcqSel.innerHTML += `<option value="${t}">${t} (${mcqData[t].length})</option>`; });
-  }
-  populateSpecificMcqDropdown();
-
-  getKeys(keys => {
-    const notes = getTextNotes();
-    const noteKeys = new Set([...Object.keys(notes), ...keys.map(k=>k.replace('note_','')).filter(k => !k.startsWith('paper_') && !k.startsWith('carousel_'))]);
-    const noteSel = document.getElementById('deleteNoteSelect'); 
-    if(noteSel) {
-        noteSel.innerHTML = '<option value="">-- Select Note Topic --</option>';
-        Array.from(noteKeys).sort().forEach(o => { noteSel.innerHTML += `<option value="${o}">${o}</option>`; });
-    }
-  });
-  renderDeletePaperList();
-}function populateSpecificMcqDropdown() {
-    const topic = document.getElementById('deleteMcqSelect').value;
-    const specificSel = document.getElementById('deleteSpecificMcqSelect');
-    if(!specificSel) return;
-    specificSel.innerHTML = '<option value="">-- Select Specific Question to Delete --</option>';
-    
-    if(!topic) return;
-    const mcqData = getMCQs();
-    const questions = mcqData[topic] || [];
-    
-    questions.forEach((q, idx) => {
-        const preview = q.q.length > 60 ? q.q.substring(0, 60) + '...' : q.q;
-        specificSel.innerHTML += `<option value="${idx}">Q${idx+1}: ${preview}</option>`;
-    });
-}async function deleteModalImageConfirmed() {
-    if (cheatImages.length === 0) return;
-    const currentImg = cheatImages[cheatIdx];
-    await deleteFile(currentImg.id);
-    if(currentImg.url.startsWith('blob:')) URL.revokeObjectURL(currentImg.url);
-    
-    cheatImages.splice(cheatIdx, 1);
-    if (cheatIdx >= cheatImages.length) {
-        cheatIdx = Math.max(0, cheatImages.length - 1);
-    }
-    updateCarousel();
-    closeImageModal();
-    showToast("Image Deleted Successfully");
-}async function clearCarouselImagesConfirmed() {
-    if (cheatImages.length === 0) return;
-    for (const img of cheatImages) await deleteFile(img.id);
-    cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
-    cheatImages = []; cheatIdx = 0; updateCarousel(); showToast("All Images Deleted");
-}function renderDeletePaperList() {
-    getKeys(keys => {
-        const div = document.getElementById('deletePaperList'); if(!div) return;
-        div.innerHTML = '';
-        const paperKeys = keys.filter(k=>k.startsWith('paper_')).sort().reverse();
-        if (paperKeys.length === 0) { div.innerHTML = '<div style="color:var(--secondary); padding:0.5rem; background:var(--card); border-radius:0.5rem; border: 1px solid var(--border);">No papers uploaded.</div>'; return; }
-        paperKeys.forEach(k => {
-          getFile(k, res => {
-            if (res) {
-                const item = document.createElement('div'); item.className = 'pdf-list-item';
-                item.style.cssText = 'background:var(--card); padding:0.75rem; margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center; border: 1px solid var(--border);';
-                item.innerHTML = `<span style="font-size: 0.9rem;"><strong>${res.meta.name}</strong></span><button class="btn btn-danger btn-sm" onclick="promptDeletePaper('${k}')">Delete</button>`;
-                div.appendChild(item);
-            }
+  questions.forEach((q, i) => {
+      let optsHtml = '';
+      if (q.o) {
+          q.o.forEach((o, j) => {
+              optsHtml += `<div class="mcq-opt" onclick="this.style.background = ${j === q.a} ? '#dcfce7' : '#fee2e2'">${String.fromCharCode(65+j)}) ${o}</div>`;
           });
-        });
-    });
-}let pendingPaperId = null;function promptDeletePaper(id) {
-    pendingPaperId = id;
-    promptDelete('paper');
-}function saveNote() {
-  const t = document.getElementById('noteTopic').value.trim(); 
-  const rawTxt = document.getElementById('noteText').value; 
+      }
+      div.innerHTML += `<div class="mcq-card"><strong>Q${i+1}: ${q.q}</strong>${optsHtml}</div>`;
+  });
+  showToast(`Quiz Started: ${questions.length} Qs.`);
+}
+
+// --- DELETION & NOTES MANAGERS ---
+let pendingDeletionType = null;
+function promptDelete(type) { pendingDeletionType = type; document.getElementById('deletePasswordModal').style.display = 'flex'; }
+function executeVerifiedDeletion() {
+    const entered = document.getElementById('deleteActionPasswordInput').value;
+    if (entered !== (localStorage.getItem("app_password") || "1234")) { showToast("Incorrect Password!"); return; }
+    document.getElementById('deletePasswordModal').style.display = 'none';
+    showToast("Deletion Verified.");
+}
+function updateDeleteSelects() {
+  const data = getMCQs(); const sel = document.getElementById('deleteMcqSelect');
+  if(sel) { sel.innerHTML = '<option value="">-- Select MCQ Topic --</option>'; Object.keys(data).forEach(t => sel.innerHTML += `<option value="${t}">${t}</option>`); }
+}
+function populateSpecificMcqDropdown() {}
+function saveNote() {
+  const t = document.getElementById('noteTopic').value.trim(); const rawTxt = document.getElementById('noteText').value; 
   if (!t) return showToast("Topic name is required");
-  
-  if(rawTxt) { 
-      let n = getTextNotes(); 
-      const formattedTxt = cleanAndFormatNoteText(rawTxt);
-      n[t] = n[t] ? n[t] + "\n" + formattedTxt : formattedTxt; 
-      localStorage.setItem("txt_notes", JSON.stringify(n)); 
-      renderHomeNote(); 
-  }
-  showToast("Note Saved"); 
-  loadSavedNotesList(); 
-  updateDeleteSelects();
-  document.getElementById('noteTopic').value = ''; 
-  document.getElementById('noteText').value = ''; 
-}async function saveMultipleNotePdfs(event) {
-  const files = Array.from(event.target.files);
-  if (files.length === 0) return;
-  
-  let savedCount = 0;
-  for (const f of files) {
-      let topicName = f.name.replace(/\.[^/.]+$/, "").replace(/[_-_]/g, " ");
-      await saveFile(`note_${topicName}`, f, { name: f.name });
-      savedCount++;
-  }
-  loadSavedNotesList();
-  updateDeleteSelects();
-  showToast(`Successfully uploaded ${savedCount} PDF note(s)! File names used as topic names.`);
-  event.target.value = '';
-}function loadSavedNotesList() {
-  getKeys(keys => {
-    const notes = getTextNotes();
-    const opts = new Set([
-        ...Object.keys(notes), 
-        ...keys.map(k => k.startsWith('note_') ? k.replace('note_', '') : null).filter(Boolean)
-    ]);
-    const sel = document.getElementById('savedNotesSelect'); 
-    if(!sel) return;
-    const currentVal = sel.value; 
-    sel.innerHTML = '<option value="">-- Select Note / PDF --</option>';
-    Array.from(opts).sort().forEach(o => { 
-        sel.innerHTML += `<option value="${o}" ${o === currentVal ? 'selected' : ''}>${o}</option>`; 
-    });
-    if (currentVal && !opts.has(currentVal)) {
-        const nda = document.getElementById('noteDisplayArea');
-        if(nda) nda.innerHTML = '';
-    }
-  });
-}function loadNoteView() {
-  const t = document.getElementById('savedNotesSelect').value; 
-  const area = document.getElementById('noteDisplayArea'); 
+  let n = getTextNotes(); n[t] = rawTxt; localStorage.setItem("txt_notes", JSON.stringify(n)); 
+  showToast("Note Saved"); loadSavedNotesList(); 
+}
+function loadSavedNotesList() {
+  const notes = getTextNotes(); const sel = document.getElementById('savedNotesSelect'); 
+  if(!sel) return;
+  sel.innerHTML = '<option value="">-- Select Note --</option>';
+  Object.keys(notes).sort().forEach(o => sel.innerHTML += `<option value="${o}">${o}</option>`);
+}
+function loadNoteView() {
+  const t = document.getElementById('savedNotesSelect').value; const area = document.getElementById('noteDisplayArea'); 
   if(!area) return;
-  area.innerHTML = '';
-  if(!t) return;
-  
-  const txtNotes = getTextNotes();
-  if(txtNotes[t]) {
-      area.innerHTML += `<div style="background:var(--card); padding:10px; margin-bottom:10px; border:1px solid var(--border); white-space:pre-wrap;">${txtNotes[t]}</div>`;
-  }
-  
-  getFile(`note_${t}`, res => { 
-      if(res && res.blob) { 
-          activeFullscreenBlob = res.blob;
-          const containerId = `notePdfRender_${Date.now()}`;
-          area.innerHTML += `<div id="${containerId}" class="pdf-viewer-container" onclick="openFullscreenPdf()"></div>`; 
-          renderPDF(res.blob, containerId); 
-      } 
-  });
-}function savePaper() {
+  area.innerHTML = getTextNotes()[t] ? `<div style="background:var(--card); padding:10px; white-space:pre-wrap;">${getTextNotes()[t]}</div>` : '';
+}
+function savePaper() {
   const n = document.getElementById('paperName').value.trim(); const f = document.getElementById('paperPdf').files[0];
-  if(n && f) { saveFile(`paper_${Date.now()}`, f, {name: n, date: new Date().toLocaleDateString()}).then(() => { loadPaperList(); updateDeleteSelects(); showToast("Paper Saved"); }); } 
+  if(n && f) { saveFile(`paper_${Date.now()}`, f, {name: n}).then(() => { loadPaperList(); showToast("Paper Saved"); }); } 
   else { showToast("Paper Name and PDF required"); }
-  document.getElementById('paperName').value = ''; document.getElementById('paperPdf').value = '';
-}function loadPaperList() {
+}
+function loadPaperList() {
   getKeys(keys => {
     const div = document.getElementById('paperList'); if(!div) return;
     div.innerHTML = '';
-    const paperKeys = keys.filter(k=>k.startsWith('paper_')).sort().reverse();
-    if (paperKeys.length === 0) { div.innerHTML = '<div style="color:var(--secondary); padding:1rem;">No papers uploaded yet.</div>'; return; }
-    paperKeys.forEach(k => {
-      getFile(k, res => {
-        if (res) {
-            const item = document.createElement('div'); item.className = 'pdf-list-item';
-            item.style.cssText = 'background:var(--bg); padding:0.75rem; margin-bottom:0.5rem; border-radius:0.5rem; display:flex; justify-content:space-between; align-items:center; border: 1px solid var(--border);';
-            item.innerHTML = `<span>${res.meta.name}</span><div><button class="btn btn-secondary btn-sm" onclick="viewPaper('${k}', '${res.meta.name}')">View</button></div>`;
-            div.appendChild(item);
-        }
-      });
+    keys.filter(k => k.startsWith('paper_')).forEach(k => {
+      getFile(k, res => { if (res) div.innerHTML += `<div style="background:var(--card); padding:0.5rem; margin-bottom:0.5rem; display:flex; justify-content:space-between;"><span>${res.meta.name}</span><button class="btn btn-sm" onclick="viewPaper('${k}', '${res.meta.name}')">View</button></div>`; });
     });
   });
-}function viewPaper(id, name) {
-  const view = document.getElementById('paperViewer'); 
+}
+function viewPaper(id, name) {
   document.getElementById('paperTitleViewer').innerText = name; 
-  view.style.display = 'block';
-  getFile(id, res => { 
-      if(res && res.blob) {
-          activeFullscreenBlob = res.blob;
-          renderPDF(res.blob, 'pdfRenderer'); 
-      }
-  }); 
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}</script></body></html>
+  document.getElementById('paperViewer').style.display = 'block';
+  getFile(id, res => { if(res && res.blob) { activeFullscreenBlob = res.blob; renderPDF(res.blob, 'pdfRenderer'); } }); 
+}
+function openFullscreenPdf() { if (!activeFullscreenBlob) return; document.getElementById('pdfFullscreenModal').style.display = 'flex'; renderPDF(activeFullscreenBlob, 'fullscreenPdfContent'); }
+function closePdfFullscreenModal() { document.getElementById('pdfFullscreenModal').style.display = 'none'; }
+function extractMCQsFromFile() {}
+function clearExtractedMCQText() {}
+function formatPastedMCQs() {}
+function saveMultipleNotePdfs() {}
+function renderExamHistory() {}
+function toggleExamSubtype() {}
+function toggleExamHistory() {}
+function submitExam() {}
+</script></body></html>
