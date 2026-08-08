@@ -650,7 +650,8 @@ Section 7B, Industrial Disputes Act, 1947."></textarea>
     if(btn) {
         btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
     }
-});// --- MASTER SYLLABUS TREES LIBRARY ---let MASTER_SYLLABUS_COLLECTION = JSON.parse(localStorage.getItem("master_syllabus_collection") || JSON.stringify({
+});// --- MASTER SYLLABUS TREES LIBRARY ---
+let MASTER_SYLLABUS_COLLECTION = JSON.parse(localStorage.getItem("master_syllabus_collection") || JSON.stringify({
     "APO LDCE (30% & 70%)": {
         "1. Role of Personnel Department & Statutory Framework": [
             "1.1 Organization, objectives & functions of Personnel Dept",
@@ -729,7 +730,12 @@ Section 7B, Industrial Disputes Act, 1947."></textarea>
             "12.1 Financial Rules, Budget, Tenders, Working Expenses, Accounts"
         ]
     }
-}));let activeSyllabusKey = localStorage.getItem("active_syllabus_key") || "APO LDCE (30% & 70%)";let APO_SYLLABUS_TREE = MASTER_SYLLABUS_COLLECTION[activeSyllabusKey] || MASTER_SYLLABUS_COLLECTION["APO LDCE (30% & 70%)"];function switchSyllabusTree(key) {
+}));
+
+let activeSyllabusKey = localStorage.getItem("active_syllabus_key") || "APO LDCE (30% & 70%)";
+let APO_SYLLABUS_TREE = MASTER_SYLLABUS_COLLECTION[activeSyllabusKey] || MASTER_SYLLABUS_COLLECTION["APO LDCE (30% & 70%)"];
+
+function switchSyllabusTree(key) {
     if (MASTER_SYLLABUS_COLLECTION[key]) {
         activeSyllabusKey = key;
         localStorage.setItem("active_syllabus_key", key);
@@ -739,7 +745,9 @@ Section 7B, Industrial Disputes Act, 1947."></textarea>
         renderSyllabusTreeButtons();
         showToast(`Switched Syllabus to: ${key}`);
     }
-}function renderSyllabusTreeButtons() {
+}
+
+function renderSyllabusTreeButtons() {
     const container = document.getElementById('syllabusTreeButtonsContainer');
     if (!container) return;
     container.innerHTML = '';
@@ -751,7 +759,9 @@ Section 7B, Industrial Disputes Act, 1947."></textarea>
         btn.onclick = () => switchSyllabusTree(key);
         container.appendChild(btn);
     });
-}function addNewSyllabusCategory() {
+}
+
+function addNewSyllabusCategory() {
     const syllabusName = document.getElementById('newSyllabusCatName').value.trim();
     const subTopicsRaw = document.getElementById('newSyllabusSubTopics').value.trim();
     
@@ -777,7 +787,10 @@ Section 7B, Industrial Disputes Act, 1947."></textarea>
     
     switchSyllabusTree(syllabusName);
     showToast(`New Syllabus Tree "${syllabusName}" Created & Appended!`);
-}// --- DEFAULT SEED DATA ---const DEFAULT_SEED_DATA = {
+}
+
+// --- DEFAULT SEED DATA ---
+const DEFAULT_SEED_DATA = {
   "app": "Srikanth Learning App",
   "version": 1,
   "localStorage": {
@@ -798,7 +811,12 @@ Section 7B, Industrial Disputes Act, 1947."></textarea>
       "Railway Rules Quick Points": "• LND Salary & Refund: Paid at half pay like LHAP; if employee resides without earning back LHAP credit, leave salary is refundable."
     })
   }
-};// --- DB & STORAGE ---const dbName = "McqAppDB";let db;const request = indexedDB.open(dbName, 1);
+};
+
+// --- DB & STORAGE ---
+const dbName = "McqAppDB";
+let db;
+const request = indexedDB.open(dbName, 1);
 request.onupgradeneeded = e => {
   db = e.target.result;
   if (!db.objectStoreNames.contains("pdfs")) db.createObjectStore("pdfs", { keyPath: "id" });
@@ -806,7 +824,9 @@ request.onupgradeneeded = e => {
 request.onsuccess = e => { 
   db = e.target.result; 
   checkAppPassword();
-};function checkAppPassword() {
+};
+
+function checkAppPassword() {
     const savedPass = localStorage.getItem("app_password") || "1234";
     const overlay = document.getElementById("passwordOverlay");
     if (savedPass && overlay) {
@@ -815,7 +835,9 @@ request.onsuccess = e => {
         overlay.style.display = "none";
         initAutoRestore();
     }
-}function verifyAppPassword() {
+}
+
+window.verifyAppPassword = function verifyAppPassword() {
     const passwordInput = document.getElementById("appPasswordInput");
     if (!passwordInput) return;
     
@@ -834,18 +856,24 @@ request.onsuccess = e => {
         showToast("Incorrect Password!");
         passwordInput.value = "";
     }
-}function resetAppEmergency() {
+}
+
+function resetAppEmergency() {
     if (confirm("Resetting app data will restore default settings. Continue?")) {
         localStorage.clear();
         location.reload();
     }
-}function saveAppPassword() {
+}
+
+function saveAppPassword() {
     const newPass = document.getElementById("newAppPassword").value.trim();
     if (!newPass) return showToast("Enter a valid password");
     localStorage.setItem("app_password", newPass);
     document.getElementById("newAppPassword").value = "";
     showToast("App Password Updated Successfully!");
-}function initAutoRestore() {
+}
+
+function initAutoRestore() {
     if (!localStorage.getItem("mcq_data") || Object.keys(getMCQs()).length === 0) {
         localStorage.setItem("mcq_data", DEFAULT_SEED_DATA.localStorage.mcq_data);
         localStorage.setItem("txt_notes", DEFAULT_SEED_DATA.localStorage.txt_notes);
@@ -868,7 +896,9 @@ request.onsuccess = e => {
     renderSyllabusTree();
     populateSyllabusDropdown();
     renderSyllabusTreeButtons();
-}function saveFile(id, blob, meta) {
+}
+
+function saveFile(id, blob, meta) {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("pdfs", "readwrite");
     const store = transaction.objectStore("pdfs");
@@ -876,33 +906,49 @@ request.onsuccess = e => {
     request.onsuccess = () => resolve(); request.onerror = (e) => reject(e);
     transaction.oncomplete = () => {};
   });
-}function getFile(id, cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").get(id).onsuccess = e => cb(e.target.result); }function getKeys(cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").getAllKeys().onsuccess = e => cb(e.target.result); }function getAllFiles() {
+}
+
+function getFile(id, cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").get(id).onsuccess = e => cb(e.target.result); }
+function getKeys(cb) { db.transaction("pdfs", "readonly").objectStore("pdfs").getAllKeys().onsuccess = e => cb(e.target.result); }
+
+function getAllFiles() {
   return new Promise((resolve, reject) => {
     const request = db.transaction("pdfs", "readonly").objectStore("pdfs").getAll();
     request.onsuccess = e => resolve(e.target.result); request.onerror = e => reject(e);
   });
-}function clearAllFiles() {
+}
+
+function clearAllFiles() {
   return new Promise((resolve, reject) => {
     const request = db.transaction("pdfs", "readwrite").objectStore("pdfs").clear();
     request.onsuccess = () => resolve(); request.onerror = e => reject(e);
   });
-}function getAllFilesByPrefix(prefix, cb) {
+}
+
+function getAllFilesByPrefix(prefix, cb) {
   const transaction = db.transaction("pdfs", "readonly");
   const range = IDBKeyRange.bound(prefix, prefix + '\uffff', false, true);
   transaction.objectStore("pdfs").getAll(range).onsuccess = (e) => cb(e.target.result);
-}function deleteFile(id) {
+}
+
+function deleteFile(id) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction("pdfs", "readwrite");
         const request = transaction.objectStore("pdfs").delete(id);
         request.onsuccess = () => resolve(); request.onerror = (e) => reject(e);
     });
-}// --- THEME MANAGEMENT ---function initTheme() {
+}
+
+// --- THEME MANAGEMENT ---
+function initTheme() {
     const isDark = localStorage.getItem("dark_mode") === "true";
     if (isDark) {
         document.documentElement.setAttribute("data-theme", "dark");
         document.getElementById("darkModeBtn").textContent = "☀️ Light";
     }
-}function toggleDarkMode() {
+}
+
+function toggleDarkMode() {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     if (isDark) {
         document.documentElement.removeAttribute("data-theme");
@@ -914,7 +960,10 @@ request.onsuccess = e => {
         document.getElementById("darkModeBtn").textContent = "☀️ Light";
     }
     showToast("Theme Updated");
-}// --- NAVIGATION ---function switchTab(id) {
+}
+
+// --- NAVIGATION ---
+function switchTab(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -925,17 +974,27 @@ request.onsuccess = e => {
   if(id === 'syllabus') { renderSyllabusTree(); renderSyllabusTreeButtons(); }
   if(id === 'notes') { loadSavedNotesList(); }
   if(id === 'home') { renderDashboardMetrics(); renderSyllabusTree(); }
-}function showToast(msg) {
+}
+
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.innerHTML = msg.replace(/\n/g, '<br>'); 
   t.classList.add('show'); 
   setTimeout(() => t.classList.remove('show'), 4000);
-}function setBackupStatus(msg) { const el = document.getElementById('backupStatus'); if (el) el.textContent = msg; }function blobToDataUrl(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); }); }function dataUrlToBlob(dataUrl) {
+}
+
+function setBackupStatus(msg) { const el = document.getElementById('backupStatus'); if (el) el.textContent = msg; }
+function blobToDataUrl(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); }); }
+function dataUrlToBlob(dataUrl) {
   const parts = dataUrl.split(','); const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'application/octet-stream';
   const binary = atob(parts[1]); const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new Blob([bytes], { type: mime });
-}function getBackupFileName() { return `srikanth-learning-app-backup-${new Date().toISOString().slice(0, 10)}.json`; }async function createBackupData() {
+}
+
+function getBackupFileName() { return `srikanth-learning-app-backup-${new Date().toISOString().slice(0, 10)}.json`; }
+
+async function createBackupData() {
   const files = await getAllFiles();
   const backup = { 
     app: "Srikanth Learning App", 
@@ -956,17 +1015,23 @@ request.onsuccess = e => {
   };
   for (const item of files) backup.indexedDbFiles.push({ id: item.id, meta: item.meta || {}, dataUrl: await blobToDataUrl(item.blob) });
   return { backup, filesCount: files.length };
-}function downloadBackupJson(jsonText) {
+}
+
+function downloadBackupJson(jsonText) {
   const backupBlob = new Blob([jsonText], { type: "application/json;charset=utf-8" });
   const url = URL.createObjectURL(backupBlob); const a = document.createElement("a");
   a.href = url; a.download = getBackupFileName(); a.style.display = "none";
   document.body.appendChild(a); a.click(); setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1000);
-}async function backupAllData() {
+}
+
+async function backupAllData() {
   try {
     setBackupStatus("Preparing backup..."); const result = await createBackupData();
     downloadBackupJson(JSON.stringify(result.backup, null, 2)); setBackupStatus("Backup downloaded."); showToast("Backup Started");
   } catch (err) { setBackupStatus("Backup failed."); showToast("Error"); }
-}async function restoreAllData(event) {
+}
+
+async function restoreAllData(event) {
   const file = event.target.files[0]; if (!file) return;
   setBackupStatus("Reading dataset file...");
   
@@ -1028,7 +1093,10 @@ request.onsuccess = e => {
     }
   };
   reader.readAsText(file);
-}function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }function cleanAndFormatNoteText(rawText) {
+}
+
+function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+function cleanAndFormatNoteText(rawText) {
     if (!rawText) return "";
     const lines = rawText.split('\n');
     const formattedLines = lines.map(line => {
@@ -1040,7 +1108,11 @@ request.onsuccess = e => {
         return `• ${trimmed}`;
     }).filter(Boolean);
     return formattedLines.join('\n');
-}// --- DASHBOARD METRICS & SYLLABUS TREE ---function getAnsweredQuestions() { return JSON.parse(localStorage.getItem("answered_questions") || "[]"); }function markQuestionAnswered(topic, qIndex) {
+}
+
+// --- DASHBOARD METRICS & SYLLABUS TREE ---
+function getAnsweredQuestions() { return JSON.parse(localStorage.getItem("answered_questions") || "[]"); }
+function markQuestionAnswered(topic, qIndex) {
     let answered = getAnsweredQuestions();
     const exists = answered.some(a => a.topic === topic && a.qIndex === qIndex);
     if (!exists) {
@@ -1048,7 +1120,9 @@ request.onsuccess = e => {
         localStorage.setItem("answered_questions", JSON.stringify(answered));
         renderDashboardMetrics();
     }
-}function renderDashboardMetrics() {
+}
+
+function renderDashboardMetrics() {
     const allData = getMCQs();
     const answered = getAnsweredQuestions();
     
@@ -1079,7 +1153,9 @@ request.onsuccess = e => {
     if(elCovered) elCovered.textContent = coveredCount;
     if(elUntouched) elUntouched.textContent = untouchedCount;
     if(elAnswered) elAnswered.textContent = answeredCount;
-}function renderSyllabusTree() {
+}
+
+function renderSyllabusTree() {
     const container = document.getElementById('syllabusTreeContainer');
     if(!container) return;
     container.innerHTML = '';
@@ -1112,7 +1188,9 @@ request.onsuccess = e => {
         `;
         container.appendChild(catDiv);
     });
-}function populateSyllabusDropdown() {
+}
+
+function populateSyllabusDropdown() {
     const sel = document.getElementById('syllabusDropdownSelect');
     if(!sel) return;
     
@@ -1148,7 +1226,10 @@ request.onsuccess = e => {
         });
         sel.appendChild(customGroup);
     }
-}// --- GLOBAL SEARCH ---function performGlobalSearch() {
+}
+
+// --- GLOBAL SEARCH ---
+function performGlobalSearch() {
     const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
     const container = document.getElementById('searchContainer');
     if(!container) return;
@@ -1196,7 +1277,9 @@ request.onsuccess = e => {
     if (resultsCount === 0) {
         container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No matching questions found.</p>`;
     }
-}function triggerHomeQuickSearch(query) {
+}
+
+function triggerHomeQuickSearch(query) {
     const container = document.getElementById('homeQuickSearchResults');
     if(!container) return;
     container.innerHTML = '';
@@ -1244,7 +1327,11 @@ request.onsuccess = e => {
     if (resultsCount === 0) {
         container.innerHTML = `<p style="color:var(--secondary); grid-column: span 2;">No matching questions found.</p>`;
     }
-}// --- BOOKMARKS ---function getBookmarks() { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); }function toggleBookmark(topic, qIndex) {
+}
+
+// --- BOOKMARKS ---
+function getBookmarks() { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); }
+function toggleBookmark(topic, qIndex) {
     let bookmarks = getBookmarks();
     const index = bookmarks.findIndex(b => b.topic === topic && b.qIndex === qIndex);
     if (index > -1) {
@@ -1256,7 +1343,9 @@ request.onsuccess = e => {
     }
     localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
     renderBookmarks();
-}function renderBookmarks() {
+}
+
+function renderBookmarks() {
     const container = document.getElementById('bookmarkContainer');
     if(!container) return;
     container.innerHTML = '';
@@ -1299,10 +1388,16 @@ request.onsuccess = e => {
         `;
         container.appendChild(el);
     });
-}// --- HOME PAGE BANNERS ---function getTextNotes() { return JSON.parse(localStorage.getItem("txt_notes") || "{}"); }function updateStats() {
+}
+
+// --- HOME PAGE BANNERS ---
+function getTextNotes() { return JSON.parse(localStorage.getItem("txt_notes") || "{}"); }
+function updateStats() {
     const data = getMCQs(); const keys = Object.keys(data); document.getElementById('statTopics').textContent = keys.length;
     let count = 0; keys.forEach(k => count += data[k].length); document.getElementById('statQuestions').textContent = count;
-}function saveQuickNote() {
+}
+
+function saveQuickNote() {
     const text = document.getElementById('quickNoteInput').value.trim();
     if (!text) return showToast("Enter a note first");
     
@@ -1322,7 +1417,10 @@ request.onsuccess = e => {
     showToast("Quick Point Saved!");
     updateDeleteSelects();
     renderHomeNote();
-}let currentTopicKeys = [];let currentTopicIndex = 0;let homeNoteInterval;function renderHomeNote() {
+}
+
+let currentTopicKeys = []; let currentTopicIndex = 0; let homeNoteInterval;
+function renderHomeNote() {
     const notes = getTextNotes();
     currentTopicKeys = Object.keys(notes);
     const display = document.getElementById('randomNoteContent');
@@ -1350,11 +1448,16 @@ request.onsuccess = e => {
     }
     display.innerHTML = html;
     currentTopicIndex++;
-}function startHomeNoteRotation() {
+}
+
+function startHomeNoteRotation() {
     renderHomeNote();
     clearInterval(homeNoteInterval);
     homeNoteInterval = setInterval(renderHomeNote, 15000);
-}let noteSnippetsCache = [];function updateMcqFact() {
+}
+
+let noteSnippetsCache = [];
+function updateMcqFact() {
     const data = getMCQs(); const topics = Object.keys(data); const el = document.getElementById('mcqFactText');
     if (!el || topics.length === 0) return;
     const topicQs = data[topics[Math.floor(Math.random() * topics.length)]];
@@ -1364,7 +1467,9 @@ request.onsuccess = e => {
             el.innerHTML = `💡 <strong>Review Fact:</strong> ${randomQ.q} <br><span style="color:var(--primary-dark); display:inline-block; margin-top:5px;">➔ ${randomQ.o[randomQ.a]}</span>`;
         }
     }
-}function updateNoteSnippet() {
+}
+
+function updateNoteSnippet() {
     const el = document.getElementById('noteReviewText'); if (!el) return;
     if (noteSnippetsCache.length === 0) {
         Object.values(getTextNotes()).forEach(text => {
@@ -1379,11 +1484,17 @@ request.onsuccess = e => {
     } else {
         el.innerHTML = "Upload text notes to see dynamic review snippets here.";
     }
-}function triggerInitialBanners() {
+}
+
+function triggerInitialBanners() {
     updateMcqFact(); updateNoteSnippet();
     setInterval(updateMcqFact, 10000);
     setInterval(updateNoteSnippet, 25000);
-}// --- CAROUSEL & FULLSCREEN IMAGE MODAL ---let cheatImages = []; let cheatIdx = 0;function loadSavedCarouselImages() {
+}
+
+// --- CAROUSEL & FULLSCREEN IMAGE MODAL ---
+let cheatImages = []; let cheatIdx = 0;
+function loadSavedCarouselImages() {
     getAllFilesByPrefix("carousel_", (results) => {
         cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
         cheatImages = results.map(item => {
@@ -1396,7 +1507,9 @@ request.onsuccess = e => {
         });
         cheatIdx = 0; updateCarousel();
     });
-}function handleCheatInput(e) {
+}
+
+function handleCheatInput(e) {
   const files = Array.from(e.target.files); if (files.length === 0) return;
   let filesProcessed = 0;
   
@@ -1419,7 +1532,9 @@ request.onsuccess = e => {
     };
     reader.readAsDataURL(f);
   });
-}function openImageModal() {
+}
+
+function openImageModal() {
     if (cheatImages.length === 0) return;
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
@@ -1428,14 +1543,18 @@ request.onsuccess = e => {
     modal.style.display = 'flex';
     modalImg.src = cheatImages[cheatIdx].url;
     downloadBtn.href = cheatImages[cheatIdx].url;
-}function closeImageModal() {
-    document.getElementById('imageModal').style.display = 'none';
-}function requestDeleteModalImage() {
-    promptDelete('modal_image');
-}async function clearCarouselImages() {
+}
+
+function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
+function requestDeleteModalImage() { promptDelete('modal_image'); }
+
+async function clearCarouselImages() {
     if (cheatImages.length === 0) { showToast("No images to clear."); return; }
     promptDelete('all_images');
-}function moveCarousel(dir) { if (cheatImages.length <= 1) return; cheatIdx = (cheatIdx + dir + cheatImages.length) % cheatImages.length; updateCarousel(); }function updateCarousel() {
+}
+
+function moveCarousel(dir) { if (cheatImages.length <= 1) return; cheatIdx = (cheatIdx + dir + cheatImages.length) % cheatImages.length; updateCarousel(); }
+function updateCarousel() {
   const imgEl = document.getElementById('carouselImg'); const placeholderEl = document.getElementById('carouselPlaceholder'); const counterEl = document.getElementById('carouselCounter');
   if(!imgEl) return;
   if (cheatImages.length > 0) {
@@ -1444,7 +1563,11 @@ request.onsuccess = e => {
   } else {
       imgEl.src = ""; imgEl.style.display = 'none'; placeholderEl.style.display = 'block'; counterEl.textContent = `0 / 0`;
   }
-}// --- GLOBAL FULLSCREEN PDF VIEWER PIPELINE ---let activeFullscreenBlob = null;function renderPDF(blob, containerId) {
+}
+
+// --- GLOBAL FULLSCREEN PDF VIEWER PIPELINE ---
+let activeFullscreenBlob = null;
+function renderPDF(blob, containerId) {
   const container = document.getElementById(containerId); 
   if(!container) return;
   container.innerHTML = '<div style="color:white; padding-top:20px;">Loading PDF...</div>';
@@ -1468,15 +1591,20 @@ request.onsuccess = e => {
   }).catch(err => { 
     container.innerHTML = '<div style="color:#ffcccc">Error rendering PDF.</div>'; 
   });
-}function openFullscreenPdf(sourceContainerId) {
+}
+
+function openFullscreenPdf(sourceContainerId) {
     if (!activeFullscreenBlob) return;
     const modal = document.getElementById('pdfFullscreenModal');
     const content = document.getElementById('fullscreenPdfContent');
     modal.style.display = 'flex';
     renderPDF(activeFullscreenBlob, 'fullscreenPdfContent');
-}function closePdfFullscreenModal() {
-    document.getElementById('pdfFullscreenModal').style.display = 'none';
-}function setExtractStatus(msg) { const el = document.getElementById('extractStatus'); if (el) el.textContent = msg; }function normalizeExtractedMCQText(text) {
+}
+
+function closePdfFullscreenModal() { document.getElementById('pdfFullscreenModal').style.display = 'none'; }
+function setExtractStatus(msg) { const el = document.getElementById('extractStatus'); if (el) el.textContent = msg; }
+
+function normalizeExtractedMCQText(text) {
   let raw = (text || '').replace(/\r/g, '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/[–—]/g, '-').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
   
   raw = raw.replace(/\s+(Q\s*(?:\.?\s*no\.?)?\s*\d+\s*[\).:]?|(?:\b|^|\n)\(?\d+\)?\s*[\).:]\s+)/gi, '\n\n$1');
@@ -1503,7 +1631,7 @@ request.onsuccess = e => {
     }
   }
 
-  const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]\s*(.+)?$/i;
+  const qStartRegex = /^(?:Q\s*)?(?:\.?\s*no\.?)?\s*\(?(\d+)\)?\s*[\).:]?\s*(.+)?$/i;
   const optMatchRegex = /^(?:\(?([a-zA-Z0-9])\)?)\s*[\).:]\s*(.+)$/;
   const ansMatchRegex = /^(?:Ans|Answer|ANSWER)\s*[:.-]?\s*([a-zA-Z0-9])\b/i;
   const noteMatchRegex = /^(?:Note|Explanation)\s*[:.-]\s*(.+)$/i;
@@ -1583,7 +1711,9 @@ request.onsuccess = e => {
     if (q.section) parts.push(`Section:\n${q.section}`);
     return parts.join('\n');
   }).join('\n\n');
-}async function extractTextFromPdfFile(file) {
+}
+
+async function extractTextFromPdfFile(file) {
   const buffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
   const pages = [];
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -1597,14 +1727,20 @@ request.onsuccess = e => {
     pages.push(rows.map(row => row.items.sort((a, b) => a.x - b.x).map(item => item.text).join(' ')).join('\n'));
   }
   return pages.join('\n\n');
-}async function extractTextFromWordFile(file) {
+}
+
+async function extractTextFromWordFile(file) {
   if (!window.mammoth) throw new Error('Loading...');
   const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() }); return result.value || '';
-}async function extractTextFromImageFile(file) {
+}
+
+async function extractTextFromImageFile(file) {
   if (!window.Tesseract) throw new Error('Loading...');
   const result = await Tesseract.recognize(file, 'eng', { logger: progress => { if (progress.status) setExtractStatus(`OCR ${progress.status} ${Math.round((progress.progress || 0) * 100)}%`); } });
   return result.data.text || '';
-}async function extractMCQsFromFile() {
+}
+
+async function extractMCQsFromFile() {
   const input = document.getElementById('mcqExtractFile'); const file = input.files[0];
   if (!file) return showToast('Choose file first.');
   try {
@@ -1618,11 +1754,20 @@ request.onsuccess = e => {
     document.getElementById('addText').value = text;
     setExtractStatus(`Extracted text. Review, then click Parse & Distribute.`); showToast('Text extracted');
   } catch (err) { setExtractStatus(err.message || 'Extract failed.'); showToast('Failed'); }
-}function formatPastedMCQs() {
+}
+
+function formatPastedMCQs() {
   const area = document.getElementById('addText'); const cleaned = normalizeExtractedMCQText(area.value);
   if (!cleaned) { setExtractStatus('No valid MCQs detected.'); showToast('No MCQs'); return ''; }
   area.value = cleaned; setExtractStatus(`Formatted MCQs. Click Parse & Distribute.`); showToast(`Formatted`); return cleaned;
-}function clearExtractedMCQText() { document.getElementById('addText').value = ''; document.getElementById('mcqExtractFile').value = ''; setExtractStatus('Supported format: Q1, A), B), C), D), Answer:, Explanation:, Trick:, Example:, Section:.'); }function getMCQs() { return JSON.parse(localStorage.getItem("mcq_data") || "{}"); }function saveMCQs(d) { localStorage.setItem("mcq_data", JSON.stringify(d)); updateSelects(); updateStats(); updateDeleteSelects(); renderDashboardMetrics(); renderSyllabusTree(); populateSyllabusDropdown(); }// --- FIXED ROBUST TOPIC AUTO-ROUTING & SMART KEYWORD MATCHER ---function detectBestSyllabusTopic(questionText) {
+}
+
+function clearExtractedMCQText() { document.getElementById('addText').value = ''; document.getElementById('mcqExtractFile').value = ''; setExtractStatus('Supported format: Q1, A), B), C), D), Answer:, Explanation:, Trick:, Example:, Section:.'); }
+function getMCQs() { return JSON.parse(localStorage.getItem("mcq_data") || "{}"); }
+function saveMCQs(d) { localStorage.setItem("mcq_data", JSON.stringify(d)); updateSelects(); updateStats(); updateDeleteSelects(); renderDashboardMetrics(); renderSyllabusTree(); populateSyllabusDropdown(); }
+
+// --- FIXED ROBUST TOPIC AUTO-ROUTING & SMART KEYWORD MATCHER ---
+function detectBestSyllabusTopic(questionText) {
     const q = questionText.toLowerCase();
     
     let bestMatch = null;
@@ -1677,7 +1822,9 @@ request.onsuccess = e => {
     if (allValidTopics.length > 0) return allValidTopics[0];
 
     return "General / Unclassified MCQs";
-}function isDuplicateAcrossGlobalLibrary(questionText, allData) {
+}
+
+function isDuplicateAcrossGlobalLibrary(questionText, allData) {
     const cleanQ = questionText.trim().toLowerCase().replace(/[\?\.\!]/g, '');
     for (const topic of Object.keys(allData)) {
         for (const item of allData[topic]) {
@@ -1687,7 +1834,9 @@ request.onsuccess = e => {
         }
     }
     return false;
-}function parseAndDistributeMCQs() {
+}
+
+function parseAndDistributeMCQs() {
   let txt = document.getElementById('addText').value;
   if(!txt) return showToast("Missing MCQ Content");
   
@@ -1848,7 +1997,9 @@ request.onsuccess = e => {
       summaryMsg += `• ${top}: ${cnt} MCQs\n`;
   }
   showToast(summaryMsg);
-}function appendMCQsToSelectedTopic() {
+}
+
+function appendMCQsToSelectedTopic() {
     const manualTopic = document.getElementById('syllabusDropdownSelect').value;
     const customManualTopic = document.getElementById('manualCustomTopicInput').value.trim();
     
@@ -1994,7 +2145,9 @@ request.onsuccess = e => {
     document.getElementById('manualCustomTopicInput').value = '';
     document.getElementById('syllabusDropdownSelect').value = '';
     showToast(`Appended ${addedCount} MCQs directly to "${targetTopic}". (${dupCount} duplicates checked)`);
-}function updateSelects() {
+}
+
+function updateSelects() {
   const data = getMCQs(); const keys = Object.keys(data).sort();
   const selects = [document.getElementById('viewTopicSelect'), document.getElementById('quizTopicSelect')];
   selects.forEach(sel => {
@@ -2004,7 +2157,9 @@ request.onsuccess = e => {
   });
   updateDeleteSelects();
   populateSyllabusDropdown();
-}function renderViewMode() {
+}
+
+function renderViewMode() {
   const t = document.getElementById('viewTopicSelect').value; 
   const container = document.getElementById('viewContainer'); 
   if(!container) return;
@@ -2036,7 +2191,11 @@ request.onsuccess = e => {
     `;
     container.appendChild(el);
   });
-}// --- QUIZ & EXAM TIMERS ---let activeExamQuestions = [];let quizTimerInterval = null;let remainingSeconds = 0;let currentQuizTopicName = "";function toggleQuizSettings() {
+}
+
+// --- QUIZ & EXAM TIMERS ---
+let activeExamQuestions = []; let quizTimerInterval = null; let remainingSeconds = 0; let currentQuizTopicName = "";
+function toggleQuizSettings() {
     const type = document.getElementById('quizTypeSelect').value;
     const subtypeSel = document.getElementById('quizSubtypeSelect');
     const topicSel = document.getElementById('quizTopicSelect');
@@ -2055,9 +2214,10 @@ request.onsuccess = e => {
         timerToggleSel.style.display = 'block';
     }
     resetQuizMode();
-}function toggleExamSubtype() {
-    resetQuizMode();
-}function resetQuizMode() { 
+}
+
+function toggleExamSubtype() { resetQuizMode(); }
+function resetQuizMode() { 
     const qc = document.getElementById('quizContainer');
     if(qc) qc.innerHTML = ''; 
     const erc = document.getElementById('examResultContainer');
@@ -2068,10 +2228,16 @@ request.onsuccess = e => {
     if(qtd) qtd.style.display = 'none';
     if(quizTimerInterval) clearInterval(quizTimerInterval);
     activeExamQuestions = []; 
-}function getExamHistory() { return JSON.parse(localStorage.getItem("exam_history") || "[]"); }function saveExamHistory(h) { localStorage.setItem("exam_history", JSON.stringify(h)); renderExamHistory(); }function toggleExamHistory() {
+}
+
+function getExamHistory() { return JSON.parse(localStorage.getItem("exam_history") || "[]"); }
+function saveExamHistory(h) { localStorage.setItem("exam_history", JSON.stringify(h)); renderExamHistory(); }
+function toggleExamHistory() {
     const el = document.getElementById('examHistoryContainer');
     if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}function renderExamHistory() {
+}
+
+function renderExamHistory() {
     const history = getExamHistory();
     const div = document.getElementById('examHistoryList');
     if(!div) return;
@@ -2088,7 +2254,9 @@ request.onsuccess = e => {
             <button class="btn btn-secondary btn-sm" onclick="retakeExam(${exam.id})">Retake Exam</button>
         </div>`;
     });
-}function retakeExam(id) {
+}
+
+function retakeExam(id) {
     const exam = getExamHistory().find(e => e.id === id);
     if (!exam) return;
     document.getElementById('quizTypeSelect').value = 'exam';
@@ -2099,7 +2267,9 @@ request.onsuccess = e => {
     activeExamQuestions = exam.questions; 
     renderActiveExam(exam.type, is30 ? 3600 : 6600);
     showToast(`Retaking exam from ${exam.date}`);
-}function renderQuizMode() {
+}
+
+function renderQuizMode() {
   const type = document.getElementById('quizTypeSelect').value;
   const subtype = document.getElementById('quizSubtypeSelect').value;
   const t = document.getElementById('quizTopicSelect').value;
@@ -2134,7 +2304,9 @@ request.onsuccess = e => {
       questions = questions.slice(0, limit); 
       renderPracticeQuiz(questions, t);
   }
-}function startQuizTimer(seconds) {
+}
+
+function startQuizTimer(seconds) {
     if(!seconds || seconds <= 0) return;
     remainingSeconds = seconds;
     const timerDisplay = document.getElementById('quizTimerDisplay');
@@ -2153,7 +2325,9 @@ request.onsuccess = e => {
             submitExam();
         }
     }, 1000);
-}function renderPracticeQuiz(questions, topicName) {
+}
+
+function renderPracticeQuiz(questions, topicName) {
     const div = document.getElementById('quizContainer'); 
     if(!div || questions.length === 0) return showToast("No questions found.");
     const bookmarks = getBookmarks();
@@ -2185,7 +2359,9 @@ request.onsuccess = e => {
         </div>`;
     });
     showToast(`Practice Quiz Started: ${questions.length} Qs.`);
-}function startPracticeSessionTimer() {
+}
+
+function startPracticeSessionTimer() {
     remainingSeconds = 900; 
     const timerDisplay = document.getElementById('quizTimerDisplay');
     const clock = document.getElementById('timerClock');
@@ -2199,7 +2375,9 @@ request.onsuccess = e => {
         clock.textContent = `⏱️ Session Time: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         if (remainingSeconds <= 0) clearInterval(quizTimerInterval);
     }, 1000);
-}function renderActiveExam(examTitle, durationSeconds) {
+}
+
+function renderActiveExam(examTitle, durationSeconds) {
     const div = document.getElementById('quizContainer'); 
     if(!div || activeExamQuestions.length === 0) return showToast("No questions found.");
     const bookmarks = getBookmarks();
@@ -2225,7 +2403,9 @@ request.onsuccess = e => {
     document.getElementById('submitExamBtn').style.display = 'inline-block';
     showToast(`${examTitle} Started: ${activeExamQuestions.length} Qs.`);
     startQuizTimer(durationSeconds);
-}function check(el, idx, ans, topic, qIdx) {
+}
+
+function check(el, idx, ans, topic, qIdx) {
   const card = el.closest('.mcq-card'); if(card.classList.contains('answered')) return;
   card.classList.add('answered'); el.classList.add('selected');
   if(idx === ans) { el.classList.add('correct'); showToast("Correct!"); } 
@@ -2238,12 +2418,16 @@ request.onsuccess = e => {
   const section = document.getElementById(`section-${qCardId}`); if(section) section.style.display = 'block';
   
   markQuestionAnswered(topic, qIdx);
-}function selectExamOption(el, idx) {
+}
+
+function selectExamOption(el, idx) {
     const card = el.closest('.mcq-card');
     if (card.classList.contains('submitted')) return; 
     card.querySelectorAll('.mcq-opt').forEach(opt => { opt.classList.remove('selected'); opt.removeAttribute('data-selected'); });
     el.classList.add('selected'); el.setAttribute('data-selected', 'true');
-}function submitExam() {
+}
+
+function submitExam() {
     if(quizTimerInterval) clearInterval(quizTimerInterval);
     const qtd = document.getElementById('quizTimerDisplay');
     if(qtd) qtd.style.display = 'none';
@@ -2289,11 +2473,17 @@ request.onsuccess = e => {
     });
     saveExamHistory(hist);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-}// --- PASSWORD-PROTECTED DELETION SYSTEM ---let pendingDeletionType = null;function promptDelete(type) {
+}
+
+// --- PASSWORD-PROTECTED DELETION SYSTEM ---
+let pendingDeletionType = null;
+function promptDelete(type) {
     pendingDeletionType = type;
     document.getElementById('deleteActionPasswordInput').value = "";
     document.getElementById('deletePasswordModal').style.display = 'flex';
-}function executeVerifiedDeletion() {
+}
+
+function executeVerifiedDeletion() {
     const entered = document.getElementById('deleteActionPasswordInput').value;
     const savedPass = localStorage.getItem("app_password") || "1234";
     
@@ -2336,7 +2526,9 @@ request.onsuccess = e => {
         deleteModalImageConfirmed();
     }
     pendingDeletionType = null;
-}function updateDeleteSelects() {
+}
+
+function updateDeleteSelects() {
   const mcqData = getMCQs(); const mcqKeys = Object.keys(mcqData).sort();
   const mcqSel = document.getElementById('deleteMcqSelect');
   if(mcqSel) {
@@ -2355,7 +2547,9 @@ request.onsuccess = e => {
     }
   });
   renderDeletePaperList();
-}function populateSpecificMcqDropdown() {
+}
+
+function populateSpecificMcqDropdown() {
     const topic = document.getElementById('deleteMcqSelect').value;
     const specificSel = document.getElementById('deleteSpecificMcqSelect');
     if(!specificSel) return;
@@ -2369,7 +2563,9 @@ request.onsuccess = e => {
         const preview = q.q.length > 60 ? q.q.substring(0, 60) + '...' : q.q;
         specificSel.innerHTML += `<option value="${idx}">Q${idx+1}: ${preview}</option>`;
     });
-}async function deleteModalImageConfirmed() {
+}
+
+async function deleteModalImageConfirmed() {
     if (cheatImages.length === 0) return;
     const currentImg = cheatImages[cheatIdx];
     await deleteFile(currentImg.id);
@@ -2382,12 +2578,16 @@ request.onsuccess = e => {
     updateCarousel();
     closeImageModal();
     showToast("Image Deleted Successfully");
-}async function clearCarouselImagesConfirmed() {
+}
+
+async function clearCarouselImagesConfirmed() {
     if (cheatImages.length === 0) return;
     for (const img of cheatImages) await deleteFile(img.id);
     cheatImages.forEach(img => { if(img.url.startsWith('blob:')) URL.revokeObjectURL(img.url); });
     cheatImages = []; cheatIdx = 0; updateCarousel(); showToast("All Images Deleted");
-}function renderDeletePaperList() {
+}
+
+function renderDeletePaperList() {
     getKeys(keys => {
         const div = document.getElementById('deletePaperList'); if(!div) return;
         div.innerHTML = '';
@@ -2404,10 +2604,15 @@ request.onsuccess = e => {
           });
         });
     });
-}let pendingPaperId = null;function promptDeletePaper(id) {
+}
+
+let pendingPaperId = null;
+function promptDeletePaper(id) {
     pendingPaperId = id;
     promptDelete('paper');
-}function saveNote() {
+}
+
+function saveNote() {
   const t = document.getElementById('noteTopic').value.trim(); 
   const rawTxt = document.getElementById('noteText').value; 
   if (!t) return showToast("Topic name is required");
@@ -2424,7 +2629,9 @@ request.onsuccess = e => {
   updateDeleteSelects();
   document.getElementById('noteTopic').value = ''; 
   document.getElementById('noteText').value = ''; 
-}async function saveMultipleNotePdfs(event) {
+}
+
+async function saveMultipleNotePdfs(event) {
   const files = Array.from(event.target.files);
   if (files.length === 0) return;
   
@@ -2438,7 +2645,9 @@ request.onsuccess = e => {
   updateDeleteSelects();
   showToast(`Successfully uploaded ${savedCount} PDF note(s)! File names used as topic names.`);
   event.target.value = '';
-}function loadSavedNotesList() {
+}
+
+function loadSavedNotesList() {
   getKeys(keys => {
     const notes = getTextNotes();
     const opts = new Set([
@@ -2457,7 +2666,9 @@ request.onsuccess = e => {
         if(nda) nda.innerHTML = '';
     }
   });
-}function loadNoteView() {
+}
+
+function loadNoteView() {
   const t = document.getElementById('savedNotesSelect').value; 
   const area = document.getElementById('noteDisplayArea'); 
   if(!area) return;
@@ -2477,12 +2688,16 @@ request.onsuccess = e => {
           renderPDF(res.blob, containerId); 
       } 
   });
-}function savePaper() {
+}
+
+function savePaper() {
   const n = document.getElementById('paperName').value.trim(); const f = document.getElementById('paperPdf').files[0];
   if(n && f) { saveFile(`paper_${Date.now()}`, f, {name: n, date: new Date().toLocaleDateString()}).then(() => { loadPaperList(); updateDeleteSelects(); showToast("Paper Saved"); }); } 
   else { showToast("Paper Name and PDF required"); }
   document.getElementById('paperName').value = ''; document.getElementById('paperPdf').value = '';
-}function loadPaperList() {
+}
+
+function loadPaperList() {
   getKeys(keys => {
     const div = document.getElementById('paperList'); if(!div) return;
     div.innerHTML = '';
@@ -2499,7 +2714,9 @@ request.onsuccess = e => {
       });
     });
   });
-}function viewPaper(id, name) {
+}
+
+function viewPaper(id, name) {
   const view = document.getElementById('paperViewer'); 
   document.getElementById('paperTitleViewer').innerText = name; 
   view.style.display = 'block';
@@ -2512,18 +2729,7 @@ request.onsuccess = e => {
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
-// Fixed check and verify app password functions ensuring global scope availability
-window.checkAppPassword = function checkAppPassword() {
-    const savedPass = localStorage.getItem("app_password") || "1234";
-    const overlay = document.getElementById("passwordOverlay");
-    if (savedPass && overlay) {
-        overlay.style.display = "flex";
-    } else if (overlay) {
-        overlay.style.display = "none";
-        initAutoRestore();
-    }
-}
-
+// Ensure global scope availability for verification function
 window.verifyAppPassword = function verifyAppPassword() {
     const passwordInput = document.getElementById("appPasswordInput");
     if (!passwordInput) return;
